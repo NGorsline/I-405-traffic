@@ -18,8 +18,7 @@ MILES = 2320
 attributeList = [0, False, "Car"]
 aList = np.array(attributeList)
 s = (MILES, 4, 3)
-freeway = np.empty(s)
-
+freeway = np.zeros(s, dtype = object)
 
 #The freeway is represented as a 2D array
 
@@ -34,10 +33,10 @@ def initializeRoad():
             val = np.random.uniform(0, 1)
             if ((j == 1 or j == 2) and val < .5): # placing vehicles on regular lanes
                 freeway[i][j][1] = True
-                freeway[i][j][2] = "Car"  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
-            elif (j == 3 and val < .15): # placing vehicles on toll lanes
+                freeway[i][j][2] = "C"  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
+            elif (j == 3 and val < .25): # placing vehicles on toll lanes
                 freeway[i][j][1] = True
-                freeway[i][j][2] = "Car"
+                freeway[i][j][2] = "C"
 
 
 initializeRoad()
