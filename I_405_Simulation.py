@@ -15,7 +15,4 @@ freeway = road()
 
 def road():
     for i in INDEX_REPRESENTING_MILES:
-        #
-    
-
-
+        print("hello")
