@@ -13,16 +13,28 @@ class Car:
     def switch_lane(self):
         # some shit
 
+    
     def drive(self):
-        # change lane
-        # move foward
+        # change lane 
+        # move foward (accelerate and decelerate accordingly)
         # enter toll lane if near it (by a percent)
-        # exit if near exit
+        # exit if near exit (by a percent)
         # stay 
         return 1
 
+    def change_lane(self):
+        # potential_space_switch < --- variable
+        # Check if there's an open space next to you (left and right) 
+        #### checking which lane is faster
+        # if yes
+            # 
     def merge(self):
         
     def enter_toll_lane(self):
+
+    
+
+    
+
 
     
