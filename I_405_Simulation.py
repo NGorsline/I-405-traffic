@@ -34,20 +34,19 @@ def initializeRoad():
     freeway[:, 1:3, 0] = REGULAR
     freeway[:, 3, 0] = TOLL
     freeway[:, 0, 0] = NOT_USED
+    freeway[:, :, 1] = False
 
     for i in range(freeway.shape[0]):  # placing vehicles on the map
         for j in range(freeway.shape[1]):
             val = np.random.uniform(0, 1)
             if ((j == 1 or j == 2) and val < .5): # placing vehicles on regular lanes
-                freeway[i][j][1] = True
                 freeway[i][j][2] = "C"  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
             elif (j == 3 and val < .25): # placing vehicles on toll lanes
-                freeway[i][j][1] = True
                 freeway[i][j][2] = "C"
 
 # Adds the on and off ramps to the freeway
 def AddingRampsToFreeway():
-    for i in xrange(len(freeway)):
+    for i in range(len(freeway)):
          #setting the off ramps value to the freeway
          if (i >= 774 and i <= 844) or (i >= 1547 and i <= 1653) or (i >= 1794 and i <= 1900):
               freeway[i, 0, 0] = OFF_RAMP
