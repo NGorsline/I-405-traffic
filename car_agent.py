@@ -12,6 +12,7 @@ class Car:
 
     def switch_lane(self):
         # some shit
+        return 1
 
     
     def drive(self):
@@ -22,16 +23,30 @@ class Car:
         # stay 
         return 1
 
+
+    def closest_car_in_front_speed(self, grid, row, col): 
+        pass
+        # return the speed of the car in front of the row and col
+    
     def change_lane(self):
-        # potential_space_switch < --- variable
+        # potential_space _switch < --- variable
+        # left_speed = 0
+        # right_speed = 0
         # Check if there's an open space next to you (left and right) 
         #### checking which lane is faster
-        # if yes
-            # 
+        # if (left space exists)
+            # left_speed = closest_car_in_front_speed(grid, row_of_left_space, col_of_left_space)
+        # if (right space exists)
+            # closest_car_in_front_speed(grid, row_of_right_space, col_of_right_space)
+        # potential_space_switch = 
+        pass
+    
+    
     def merge(self):
-        
-    def enter_toll_lane(self):
+        pass  # PASS FOR NOW CUZ WE NEED A BODY
 
+    def enter_toll_lane(self):
+        pass
     
 
     
