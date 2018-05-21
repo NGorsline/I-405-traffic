@@ -1,11 +1,14 @@
+#General lane change: under random number of the ability to change lanes, then know you might want to and check if you will
+
 class Car:
    # Constructor 
 	def __init__(self, x, y):
 		# class variables
-		self.curr_location = (x, y)
-        self.completed = False
-        self.starting_time = None  # will be set when car is spawned into the sim
-        self.finishing_time = None  # will be set when car passes the end of the road
+		self.speed = None # will be set when the car is created
+		self.curr_location = (x, y) # location that the vehicle is currently at
+		self.completed = False # If the car has left the simulation
+		self.starting_time = None  # will be set when car is spawned into the sim
+		self.finishing_time = None  # will be set when car passes the end of the road
 
 	def drive(self):
        # change lane   <-- TRAN

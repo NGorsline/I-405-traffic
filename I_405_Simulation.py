@@ -34,7 +34,7 @@ def initializeRoad():
     freeway[:, 1:3, 0] = REGULAR
     freeway[:, 3, 0] = TOLL
     freeway[:, 0, 0] = NOT_USED
-    freeway[:, :, 1] = False
+    freeway[:, :, 1] = 0
 
     for i in range(freeway.shape[0]):  # placing vehicles on the map
         for j in range(freeway.shape[1]):
