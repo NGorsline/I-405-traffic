@@ -1,26 +1,24 @@
-# # THEM CARS MOVING AND SHIT
-# a = 3
-# print ("man wtf" + str(a))
-# #fuck you
-
 class Car:
    # Constructor 
 	def __init__(self, x, y):
-       # class variables
+		# class variables
 		self.curr_location = (x, y)
-		self.finishing_time = None  # will be set when car passes the end of the road
+        self.completed = False
+        self.starting_time = None  # will be set when car is spawned into the sim
+        self.finishing_time = None  # will be set when car passes the end of the road
 
 	def drive(self):
-       # change lane 
+       # change lane   <-- TRAN
        # move foward (accelerate and decelerate accordingly)
        # enter toll lane if near it (by a percent)
        # exit if near exit (by a percent)
        # stay 
 		pass
 
+    # TRAN'S SECTION#########################################################3
 	def closest_car_in_front_speed(self, grid, row, col): 
 		pass
-        # return the speed of the car in front of the row and col
+        # search for the nearest car 
 
 	def change_lane(self):
         # potential_space _switch < --- variable
