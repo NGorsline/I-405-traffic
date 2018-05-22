@@ -1,11 +1,9 @@
-#General lane change: under random number of the ability to change lanes, then know you might want to and check if you will
-
 class Car:
    # Constructor 
-	def __init__(self, x, y):
+	def __init__(self, row, col):
 		# class variables
 		self.speed = None # will be set when the car is created
-		self.curr_location = (x, y) # location that the vehicle is currently at
+		self.curr_location = (row, col) # location that the vehicle is currently at
 		self.completed = False # If the car has left the simulation
 		self.starting_time = None  # will be set when car is spawned into the sim
 		self.finishing_time = None  # will be set when car passes the end of the road
@@ -18,7 +16,10 @@ class Car:
        # stay 
 		pass
 
+
+
     # TRAN'S SECTION#########################################################3
+	# helper function for change_lane
 	def closest_car_in_front_speed(self, grid, row, col): 
 		pass
         # search for the nearest car 
