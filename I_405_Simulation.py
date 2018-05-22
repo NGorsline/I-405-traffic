@@ -51,7 +51,7 @@ def AddingRampsToFreeway():
          if (i >= 774 and i <= 844) or (i >= 1547 and i <= 1653) or (i >= 1794 and i <= 1900):
               freeway[i, 0, 0] = OFF_RAMP
          #setting the on ramps value to the freeway
-         if (i >= 845 and i <= 951) or (i >= 1654 and i <= 1724) or (i >= 1901 and i <= 2042):
+         if (i >= 845 and i <= 951) or (i >= 1654 and i <= 1724) or (i >= 1901 and i <= 2042) or (i >= 2213 and i <= 2320):
               freeway[i, 0, 0] = ON_RAMP
 
 initializeRoad()
