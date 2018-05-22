@@ -20,19 +20,22 @@ class Car:
 
     # TRAN'S SECTION#########################################################3
 	# helper function for change_lane
-	def closest_car_in_front_speed(self, grid, row, col): 
+	def _closest_car_in_front_speed(self, grid, row, col): 
 		pass
         # search for the nearest car 
 
+	# changing lane is moving diagionally  
 	def change_lane(self):
         # potential_space _switch < --- variable
         # left_speed = 0
         # right_speed = 0
-        # Check if there's an open space next to you (left and right) 
+        # Check if there's an open space next to you (left and right)
+			# diagonal space <--- sooooo left = i[self.row + 1][self.col +1 or -1][tuple car object] == None
         #### checking which lane is faster
         # if (left space exists)
-            # left_speed = closest_car_in_front_speed(grid, row_of_left_space, col_of_left_space)
+            # left_speed = _closest_car_in_front_speed(grid, row_of_left_space, col_of_left_space)
         # if (right space exists)
-            # closest_car_in_front_speed(grid, row_of_right_space, col_of_right_space)
-        # potential_space_switch = 
+            # right_speed = _closest_car_in_front_speed(grid, row_of_right_space, col_of_right_space)
+        # potential_space_switch = whichever speed is bigger (right_speed vs left_left)
+
 		pass
