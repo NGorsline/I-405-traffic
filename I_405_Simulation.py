@@ -25,7 +25,7 @@ MILES = 2320
 
 attributeList = [0, False, "Car"]
 aList = np.array(attributeList)
-s = (MILES< 4, 4)
+s = (MILES, 4, 4)
 freeway = np.zeros(s, dtype = object)
 
 #The freeway is represented as a 2D array
