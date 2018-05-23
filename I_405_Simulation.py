@@ -25,7 +25,7 @@ MILES = 2320
 
 attributeList = [0, False, "Car"]
 aList = np.array(attributeList)
-s = (MILES, 4, 3)
+s = (MILES< 4, 4)
 freeway = np.zeros(s, dtype = object)
 
 #The freeway is represented as a 2D array
@@ -34,7 +34,7 @@ def initializeRoad():
     freeway[:, 1:3, 0] = REGULAR
     freeway[:, 3, 0] = TOLL
     freeway[:, 0, 0] = NOT_USED
-    freeway[:, :, 1] = 0
+    freeway[:, :, 1] = False
 
     for i in range(freeway.shape[0]):  # placing vehicles on the map
         for j in range(freeway.shape[1]):
