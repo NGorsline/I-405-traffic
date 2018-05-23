@@ -103,7 +103,7 @@ def visualize():
 			#	visualization[i][j] = 1800
 			#visualization[i][j] = freeway[i][j][1] * 10
 
-	c = plt.pcolor(visualization, cmap = "tab20c")
+	d = plt.pcolor(visualization, cmap = "gist_ncar")
 
 initializeRoad()
 AddingRampsToFreeway()
@@ -111,6 +111,19 @@ freeway[0, 1, 2] = car_agent.Car(0, 1)
 moveCars()
 visualize()
 plt.show()
+
+top = tkinter.Tk()
+top.config(width=400, height=700)
+C = tkinter.Canvas(top,bg="dark green", height=700, width=400)
+C.create_rectangle(50, 0, 350, 700, fill="grey", outline = 'blue')
+C.create_line(125,0,125,700)
+C.create_line(200,0,200,700)
+C.create_line(273,0,273,700)
+C.create_line(277,200,277,700)
+
+C.pack()
+top.mainloop()
+
 
 #top = tkinter.Tk()
 #top.mainloop()
