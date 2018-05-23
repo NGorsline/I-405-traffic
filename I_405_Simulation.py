@@ -2,6 +2,7 @@ import numpy as np
 import car_agent
 np.set_printoptions(threshold=np.inf)
 import math
+import tkinter
 
 global freeway
 
@@ -77,6 +78,8 @@ initializeRoad()
 AddingRampsToFreeway()
 moveCars()
 
+top = tkinter.Tk()
+top.mainloop()
 
 
 
