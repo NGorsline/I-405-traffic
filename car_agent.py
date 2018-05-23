@@ -11,16 +11,16 @@ class Car:
 		self.starting_time = None  # will be set when car is spawned into the sim
 		self.finishing_time = None  # will be set when car passes the end of the road
 
-	def _set_location(row, col):
+	def _set_location(self, row, col):
 		self.curr_location = (row, col)
 
 	def drive(self, grid):
        # change lane   <-- TRAN
        # move foward (accelerate and decelerate accordingly)
+	   self.move_forward(grid)
        # enter toll lane if near it (by a percent)
        # exit if near exit (by a percent)
        # stay 
-		pass
 
 
     # TRAN'S SECTION#########################################################3
@@ -62,10 +62,16 @@ class Car:
 	def move_forward(self, grid):
 
 		# Create helper function to check if the spaces in front will be clear at the speed traveled
-		if speed == 0:
-			if grid[curr_row, curr_col]:
-				pass
-		for i in range(speed):
+		if self.speed == 0:
+			new_row = self.curr_row + 1
+			new_col = self.curr_col
+			# Check to see if the proposed new spot has a car at that location
+			if grid[new_row, new_col, 2] == None: # ADD AN AND TO CHECK IF THE CAR WAS JUST THERE
+				# Create helper to move car from source location to target location
+				grid[new_row, new_col, 2] = grid[self.curr_row, self.curr_col, 2]
+				grid[self.curr_row, self.curr_col, 2] = None
+				self._set_location(new_row, new_col)
+		for i in range(self.speed):
 			pass
 		# Check to see the speed of the car and if the car will encounter a space
 		#    that has already been occupied in this time stamp (within the same second)

@@ -37,6 +37,7 @@ freeway = np.zeros(s, dtype = object)
 #The freeway is represented as a 2D array
 def initializeRoad():
     global freeway
+    freeway[:, :, 2] = None # initilaize all cars to none
     freeway[:, 1:3, 0] = REGULAR
     freeway[:, 3, 0] = TOLL
     freeway[:, 0, 0] = NOT_USED
@@ -44,13 +45,13 @@ def initializeRoad():
     freeway[1232:, 3, 3] = CANNOT_CHANGE_LANES
 
 
-    for i in range(freeway.shape[0]):  # placing vehicles on the map
-        for j in range(freeway.shape[1]):
-            val = np.random.uniform(0, 1)
-            if ((j == 1 or j == 2) and val < .5): # placing vehicles on regular lanes
-                freeway[i][j][2] = car_agent.Car(i, j)  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
-            elif (j == 3 and val < .25): # placing vehicles on toll lanes
-                freeway[i][j][2] = car_agent.Car(i, j)
+    # for i in range(freeway.shape[0]):  # placing vehicles on the map
+    #     for j in range(freeway.shape[1]):
+    #         val = np.random.uniform(0, 1)
+    #         if ((j == 1 or j == 2) and val < .5): # placing vehicles on regular lanes
+    #             freeway[i][j][2] = car_agent.Car(i, j)  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
+    #         elif (j == 3 and val < .25): # placing vehicles on toll lanes
+    #             freeway[i][j][2] = car_agent.Car(i, j)
 
 # Adds the on and off ramps to the freeway
 def AddingRampsToFreeway():
@@ -76,6 +77,8 @@ def moveCars():
 
 initializeRoad()
 AddingRampsToFreeway()
+freeway[0, 1, 2] = car_agent.Car(0, 1)
+print(freeway)
 moveCars()
 
 top = tkinter.Tk()
