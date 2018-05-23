@@ -86,7 +86,7 @@ def visualize():
 	for i in range(freeway.shape[0]):
 		for j in range(freeway.shape[1]):
 			if freeway[i][j][0] == -1:
-				visualization[i][j] = 1000
+				visualization[i][j] = 800
 			if freeway[i][j][0] == 1:
 				visualization[i][j] = 300
 			if freeway[i][j][0] == 3:
@@ -103,7 +103,7 @@ def visualize():
 			#	visualization[i][j] = 1800
 			#visualization[i][j] = freeway[i][j][1] * 10
 
-	c = plt.pcolor(visualization, cmap = "gist_ncar")
+	c = plt.pcolor(visualization, cmap = "tab20c")
 
 initializeRoad()
 AddingRampsToFreeway()
