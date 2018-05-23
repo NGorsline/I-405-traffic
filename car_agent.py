@@ -63,7 +63,7 @@ class Car:
 	def move_forward(self, grid):
 
 		# Create helper function to check if the spaces in front will be clear at the speed traveled
-		if self.speed == 0:
+		if self.speed == 0 and self.curr_row < 2319: ## SECOND AND IS TEMP
 			new_row = self.curr_row + 1
 			new_col = self.curr_col
 			# Check to see if the proposed new spot has a car at that location
