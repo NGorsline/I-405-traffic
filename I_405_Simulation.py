@@ -21,7 +21,11 @@ LINES = 5
 NOT_USED = -1
 #Represents the total number of indexes we need to represent 6.8 miles.
 #Each index represent 15 feet.
-MILES = 2320  
+MILES = 2320 
+#Represents the dotted lines
+CAN_CHANGE_LANES = True
+#Represents double white lines 
+CANNOT_CHANGE_LANES = False 
 
 attributeList = [0, False, "Car"]
 aList = np.array(attributeList)
@@ -34,7 +38,8 @@ def initializeRoad():
     freeway[:, 1:3, 0] = REGULAR
     freeway[:, 3, 0] = TOLL
     freeway[:, 0, 0] = NOT_USED
-    freeway[:, :, 1] = False
+    freeway[:, :, 3] = CAN_CHANGE_LANES
+    freeway[1232:, 3, 3] = CANNOT_CHANGE_LANES
 
     for i in range(freeway.shape[0]):  # placing vehicles on the map
         for j in range(freeway.shape[1]):
@@ -53,6 +58,8 @@ def AddingRampsToFreeway():
          #setting the on ramps value to the freeway
          if (i >= 845 and i <= 951) or (i >= 1654 and i <= 1724) or (i >= 1901 and i <= 2042) or (i >= 2213 and i <= 2320):
               freeway[i, 0, 0] = ON_RAMP
+
+
 
 initializeRoad()
 AddingRampsToFreeway()
