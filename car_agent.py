@@ -63,8 +63,10 @@ class Car:
 
 		# Create helper function to check if the spaces in front will be clear at the speed traveled
 		if speed == 0:
-			if grid[curr_row, curr_col
-		for i in range(speed)
+			if grid[curr_row, curr_col]:
+				pass
+		for i in range(speed):
+			pass
 		# Check to see the speed of the car and if the car will encounter a space
 		#    that has already been occupied in this time stamp (within the same second)
 		# If the proposed space is open, and there are no cars or previosly occupied spots
