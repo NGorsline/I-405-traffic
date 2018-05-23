@@ -42,13 +42,14 @@ def initializeRoad():
     freeway[:, :, 3] = CAN_CHANGE_LANES
     freeway[1232:, 3, 3] = CANNOT_CHANGE_LANES
 
+
     for i in range(freeway.shape[0]):  # placing vehicles on the map
         for j in range(freeway.shape[1]):
             val = np.random.uniform(0, 1)
             if ((j == 1 or j == 2) and val < .5): # placing vehicles on regular lanes
-                freeway[i][j][2] = "c"  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
+                freeway[i][j][2] = car_agent.Car(i, j)  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
             elif (j == 3 and val < .25): # placing vehicles on toll lanes
-                freeway[i][j][2] = "c"
+                freeway[i][j][2] = car_agent.Car(i, j)
 
 # Adds the on and off ramps to the freeway
 def AddingRampsToFreeway():
@@ -60,10 +61,22 @@ def AddingRampsToFreeway():
          if (i >= 845 and i <= 951) or (i >= 1654 and i <= 1724) or (i >= 1901 and i <= 2042) or (i >= 2213 and i <= 2320):
               freeway[i, 0, 0] = ON_RAMP
 
+def moveCarsHelper():
+    for i in range(freeway.shape[0] - 1, -1, -1):
+        for j in range(freeway.shape[1] - 1, -1, -1):
+            if type(freeway[i, j, 2]) is car_agent.Car:
+                freeway[i, j, 2].drive()
 
+def moveCars():
+    time = 0
+    while time < 200:
+        moveCarsHelper()
+        time += 1
 
 initializeRoad()
 AddingRampsToFreeway()
+moveCars()
+
 
 
 
