@@ -3,7 +3,8 @@ import car_agent
 np.set_printoptions(threshold=np.inf)
 import math
 import tkinter
-
+import matplotlib.pyplot as plt
+import matplotlib.colors
 import time
 
 global freeway
@@ -72,17 +73,43 @@ def moveCarsHelper():
 
 def moveCars():
 	time = 0
-	while time < 2000:
+	while time < 20:
 		moveCarsHelper()
 		time += 1
+
+def visualize():
+    #visualization = np.zeros([freeway.shape[0], freeway.shape[1]])
+    #for i in range(freeway.shape[0]):
+    #    for j in range(freeway.shape[1]):
+    #        if freeway[i][j][0] == -1:
+    #            visualization[i][j] = 100
+            #if freeway[i][j][0] == 1:
+            #    visualization[i][j] = 300
+            #if freeway[i][j][0] == 3:
+            #    visualization[i][j] = 600
+            #if freeway[i][j][2] == None:
+            #    visualization[i][j] = 900
+            #if type(freeway[i][j][2]) is car_agent.Car:
+            #    visualization[i][j] = 1200
+            #if freeway[i][j][3] == True:
+            #    visualization[i][j] = 1500
+            #if freeway[i][j][3] == False:
+            #    visualization[i][j] = 1800
+            #visualization[i][j] = freeway[i][j][1] * 10
+    p = np.arange(9280)
+    p = p.reshape(2320, 4)
+    t = (1, 2, 3, 4, 5)
+
+    c = plt.pcolor(t, edgecolors = 'k', cmap = "gist_ncar")
 
 initializeRoad()
 AddingRampsToFreeway()
 freeway[0, 1, 2] = car_agent.Car(0, 1)
-
 moveCars()
+visualize()
+plt.show()
 
-top = tkinter.Tk()
-top.mainloop()
+#top = tkinter.Tk()
+#top.mainloop()
 
 #print(freeway)
