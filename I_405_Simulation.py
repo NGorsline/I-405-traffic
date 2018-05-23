@@ -65,11 +65,11 @@ def moveCarsHelper():
     for i in range(freeway.shape[0] - 1, -1, -1):
         for j in range(freeway.shape[1] - 1, -1, -1):
             if type(freeway[i, j, 2]) is car_agent.Car:
-                freeway[i, j, 2].drive()
+                freeway[i, j, 2].drive(freeway)
 
 def moveCars():
     time = 0
-    while time < 200:
+    while time < 20:
         moveCarsHelper()
         time += 1
 
