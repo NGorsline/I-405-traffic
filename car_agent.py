@@ -12,7 +12,8 @@ class Car:
 		self.finishing_time = None  # will be set when car passes the end of the road
 
 	def _set_location(self, row, col):
-		self.curr_location = (row, col)
+		self.curr_row = row
+		self.curr_col = col
 
 	def drive(self, grid):
        # change lane   <-- TRAN
