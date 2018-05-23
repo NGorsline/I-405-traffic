@@ -16,7 +16,7 @@ TOLL = 3
 #Represents the on ramp on the freeway
 ON_RAMP = 4
 #Represents the total lanes on the freeway
-LINES = 4
+LANES = 4
 #Represents locations of the freeway where a car is not allowed to drive in
 NOT_USED = -1
 #Represents the total number of indexes we need to represent 6.8 miles.
