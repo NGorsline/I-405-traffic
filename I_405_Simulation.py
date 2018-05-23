@@ -16,20 +16,21 @@ TOLL = 3
 #Represents the on ramp on the freeway
 ON_RAMP = 4
 #Represents the total lanes on the freeway
-LINES = 5
+LINES = 4
 #Represents locations of the freeway where a car is not allowed to drive in
 NOT_USED = -1
 #Represents the total number of indexes we need to represent 6.8 miles.
 #Each index represent 15 feet.
+
 MILES = 2320 
 #Represents the dotted lines
 CAN_CHANGE_LANES = True
 #Represents double white lines 
 CANNOT_CHANGE_LANES = False 
 
-attributeList = [0, False, "Car"]
-aList = np.array(attributeList)
-s = (MILES, 4, 4)
+
+# Lane type, time last visited, car, can change
+s = (MILES, LANES, 4)
 freeway = np.zeros(s, dtype = object)
 
 #The freeway is represented as a 2D array
@@ -63,5 +64,7 @@ def AddingRampsToFreeway():
 
 initializeRoad()
 AddingRampsToFreeway()
+
+
 
 print(freeway)

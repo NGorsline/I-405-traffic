@@ -1,14 +1,20 @@
 class Car:
+	MAX_SPEED = 6
+	SPEED_PER = 10.22 # mph per speed step
    # Constructor 
 	def __init__(self, row, col):
 		# class variables
-		self.speed = None # will be set when the car is created
-		self.curr_location = (row, col) # location that the vehicle is currently at
+		self.speed = 0  # TEMP SET TO 0 # will be set when the car is created
+		self.curr_row = row # location that the vehicle is currently at
+		self.curr_col = col # location that the vehicle is currently at
 		self.completed = False # If the car has left the simulation
 		self.starting_time = None  # will be set when car is spawned into the sim
 		self.finishing_time = None  # will be set when car passes the end of the road
 
-	def drive(self):
+	def _set_location(row, col):
+		self.curr_location = (row, col)
+
+	def drive(self, grid):
        # change lane   <-- TRAN
        # move foward (accelerate and decelerate accordingly)
        # enter toll lane if near it (by a percent)
@@ -54,6 +60,11 @@ class Car:
 
 	# This method will attempt to move the vehicle forward
 	def move_forward(self, grid):
+
+		# Create helper function to check if the spaces in front will be clear at the speed traveled
+		if speed == 0:
+			if grid[curr_row, curr_col
+		for i in range(speed)
 		# Check to see the speed of the car and if the car will encounter a space
 		#    that has already been occupied in this time stamp (within the same second)
 		# If the proposed space is open, and there are no cars or previosly occupied spots
