@@ -1,3 +1,5 @@
+import numpy.random as np_rand
+
 class Car:
 	MAX_SPEED = 6
 	SPEED_PER = 10.22 # mph per speed step
@@ -6,6 +8,13 @@ class Car:
 	LANE_TYPE_INDEX = 0
 	CHANGE_L_INDEX = 3
 	LAST_INDEX = 2320-1
+	#Represents regular lanes in the freeway
+	REGULAR = 1
+	#Represents the off ramp on the freeway
+	OFF_RAMP = 2
+	#Represents the toll lane on the freeway
+	TOLL = 3
+	ON_RAMP = 4
 
    # Constructor 
 	def __init__(self, row, col):
@@ -47,6 +56,7 @@ class Car:
 		return car_speed
 		  
 	def change_lane(self, freeway):
+		# DO SOME BOUNDARY CHECKING 
 		# potential_space _switch < --- variable
 		left_availability = 0
 		right_availability = 0
@@ -70,7 +80,9 @@ class Car:
 
 		# DON'T FORGET to ooo REMOVEEEE A CAR ONCE YOU'VE MOVED IT *****************************8
 		# 20% CHANCE OF GETTING IN TO TOLL LANE
-		if (freeway[potential_space_switch_row, potential_space_switch_col, self.CAR])
+		if (freeway[potential_space_switch_row, potential_space_switch_col, self.LANE_TYPE_INDEX] == self.TOLL):
+
+
 		# CHANGE SPEED of THE CAR 
 		
 	
