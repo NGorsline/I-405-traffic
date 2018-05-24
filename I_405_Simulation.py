@@ -8,6 +8,7 @@ import matplotlib.colors
 import time
 
 global freeway
+global TIME_SECONDS
 
 #CONSTANTS
 #---------
@@ -31,6 +32,8 @@ MILES = 2320
 CAN_CHANGE_LANES = True
 #Represents double white lines 
 CANNOT_CHANGE_LANES = False 
+TIME_SECONDS = 0
+
 
 
 # Lane type, time last visited, car, can change
@@ -72,35 +75,35 @@ def moveCarsHelper():
 				freeway[i, j, 2].drive(freeway)
 
 def moveCars():
-	time = 0
-	while time < 20:
+	global TIME_SECONDS
+
+	while TIME_SECONDS < 20:
 		moveCarsHelper()
-		time += 1
+		TIME_SECONDS += 1
 
 def visualize():
-    #visualization = np.zeros([freeway.shape[0], freeway.shape[1]])
-    #for i in range(freeway.shape[0]):
-    #    for j in range(freeway.shape[1]):
-    #        if freeway[i][j][0] == -1:
-    #            visualization[i][j] = 100
-            #if freeway[i][j][0] == 1:
-            #    visualization[i][j] = 300
-            #if freeway[i][j][0] == 3:
-            #    visualization[i][j] = 600
-            #if freeway[i][j][2] == None:
-            #    visualization[i][j] = 900
-            #if type(freeway[i][j][2]) is car_agent.Car:
-            #    visualization[i][j] = 1200
-            #if freeway[i][j][3] == True:
-            #    visualization[i][j] = 1500
-            #if freeway[i][j][3] == False:
-            #    visualization[i][j] = 1800
-            #visualization[i][j] = freeway[i][j][1] * 10
-    p = np.arange(9280)
-    p = p.reshape(2320, 4)
-    t = (1, 2, 3, 4, 5)
+	visualization = np.zeros([freeway.shape[0], freeway.shape[1]])
+	for i in range(freeway.shape[0]):
+		for j in range(freeway.shape[1]):
+			if freeway[i][j][0] == -1:
+				visualization[i][j] = 800
+			if freeway[i][j][0] == 1:
+				visualization[i][j] = 300
+			if freeway[i][j][0] == 3:
+				visualization[i][j] = 600
+			if freeway[i][j][0] == 2:
+				visualization[i][j] = 900
+			#if freeway[i][j][2] == None:
+			#	visualization[i][j] = 900
+			#if type(freeway[i][j][2]) is car_agent.Car:
+			#	visualization[i][j] = 1200
+			#if freeway[i][j][3] == True:
+			#	visualization[i][j] = 1500
+			#if freeway[i][j][3] == False:
+			#	visualization[i][j] = 1800
+			#visualization[i][j] = freeway[i][j][1] * 10
 
-    c = plt.pcolor(t, edgecolors = 'k', cmap = "gist_ncar")
+	d = plt.pcolor(visualization, cmap = "gist_ncar")
 
 initializeRoad()
 AddingRampsToFreeway()
@@ -108,6 +111,19 @@ freeway[0, 1, 2] = car_agent.Car(0, 1)
 moveCars()
 visualize()
 plt.show()
+
+top = tkinter.Tk()
+top.config(width=400, height=700)
+C = tkinter.Canvas(top,bg="dark green", height=700, width=400)
+C.create_rectangle(50, 0, 350, 700, fill="grey", outline = 'blue')
+C.create_line(125,0,125,700)
+C.create_line(200,0,200,700)
+C.create_line(273,0,273,700)
+C.create_line(277,200,277,700)
+
+C.pack()
+top.mainloop()
+
 
 #top = tkinter.Tk()
 #top.mainloop()
