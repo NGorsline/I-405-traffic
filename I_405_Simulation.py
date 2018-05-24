@@ -9,6 +9,8 @@ import time
 
 global freeway
 global TIME_SECONDS
+global TOL_COUNT
+global REG_COUNT
 
 #CONSTANTS
 #---------
@@ -33,7 +35,8 @@ CAN_CHANGE_LANES = True
 #Represents double white lines 
 CANNOT_CHANGE_LANES = False 
 TIME_SECONDS = 0
-
+TOL_COUNT = 0
+REG_COUNT = 0
 
 
 # Lane type, time last visited, car, can change
@@ -42,7 +45,10 @@ freeway = np.zeros(s, dtype = object)
 
 #The freeway is represented as a 2D array
 def initializeRoad():
+	global TOL_COUNT
 	global freeway
+	global REG_COUNT
+
 	freeway[:, :, 2] = None # initilaize all cars to none
 	freeway[:, 1:3, 0] = REGULAR
 	freeway[:, 3, 0] = TOLL
@@ -55,8 +61,11 @@ def initializeRoad():
 			val = np.random.uniform(0, 1)
 			if ((j == 1 or j == 2) and val < .5): # placing vehicles on regular lanes
 				freeway[i][j][2] = car_agent.Car(i, j, False)  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
+				REG_COUNT += 1
 			elif (j == 3 and val < .25): # placing vehicles on toll lanes
 				freeway[i][j][2] = car_agent.Car(i, j, False)
+				TOL_COUNT += 1
+
 
 # Adds the on and off ramps to the freeway
 def AddingRampsToFreeway():
@@ -72,7 +81,22 @@ def moveCarsHelper():
 	for i in range(freeway.shape[0] - 1, -1, -1):
 		for j in range(freeway.shape[1] - 1, -1, -1):
 			if type(freeway[i, j, 2]) is car_agent.Car:
-				freeway[i, j, 2].drive(freeway)
+				freeway[i, j, 2].drive(freeway, TIME_SECONDS)
+
+def addAgent():
+	global REG_COUNT
+	global TOL_COUNT
+	global TIME_SECONDS
+	
+
+	for i in range(1, freeway.shape[1]):
+		val = np.random.uniform(0, 1)
+		if ((i == 1 or i == 2) and val < .5 and freeway[0, i, 1] != TIME_SECONDS):
+			freeway[0][i][2] = car_agent.Car(0, i, False)
+			REG_COUNT += 1
+		elif (i == 3 and val < .2 and freeway[0, i, 1] != TIME_SECONDS):
+			freeway[0, i, 2] = car_agent.Car(0, i, False)
+			TOL_COUNT += 1
 
 def moveCars():
 	global TIME_SECONDS
@@ -86,7 +110,7 @@ def finishLine():
 	for i in range(freeway.shape[0]):  # placing vehicles on the map\
 		for j in range(freeway.shape[1]):
 			car = freeway[i, j, 2]
-			print car.is_tracked()
+			#print car.is_tracked()
 			pass
 				
 
@@ -117,9 +141,12 @@ def visualize():
 initializeRoad()
 AddingRampsToFreeway()
 #finishLine()
-freeway[0, 1, 2] = car_agent.Car(0, 1)
+
+freeway[0, 1, 2] = car_agent.Car(0, 1, False)
 moveCars()
 visualize()
+print(REG_COUNT)
+print(TOL_COUNT)
 plt.show()
 
 top = tkinter.Tk()
@@ -131,8 +158,8 @@ C.create_line(200,0,200,700)
 C.create_line(273,0,273,700)
 C.create_line(277,200,277,700)
 
-C.pack()
-top.mainloop()
+#C.pack()
+#top.mainloop()
 
 
 

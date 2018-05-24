@@ -122,9 +122,9 @@ class Car:
 	def _get_next_available_location(self, grid, sim_time):
 		for i in range(6):
 			index_free = 0
-			row_to_check = row + i
+			row_to_check = self.row + i
 			grid_to_check = grid[row_to_check, self.col]
-			if row_to_check < LAST_INDEX and sim_time != grid_to_check[TIME_INDEX] and grid_to_check[CAR_INDEX] == None:
+			if row_to_check < self.LAST_INDEX and sim_time != grid_to_check[self.TIME_INDEX] and grid_to_check[self.CAR_INDEX] == None:
 				index_free = index_free + 1
 			else:
 				return index_free
@@ -134,7 +134,7 @@ class Car:
 		
 
 		# Create helper function to check if the spaces in front will be clear at the speed traveled
-		if self.speed == 0 and self.row < LAST_INDEX: ## SECOND AND IS TEMP
+		if self.speed == 0 and self.row < self.LAST_INDEX: ## SECOND AND IS TEMP
 			new_row = self.row + 1
 			new_col = self.col
 			# Check to see if the proposed new spot has a car at that location
@@ -143,9 +143,11 @@ class Car:
 				grid[new_row, new_col, 2] = grid[self.row, self.col, 2]
 				grid[self.row, self.col, 2] = None
 				self._set_location(new_row, new_col)
+				if(self.speed < self.MAX_SPEED):
+					self.speed = self.speed + 1
+				
 		for i in range(self.speed):
-			# call _get_next)available_location
-			pass
+			val = self._get_next_available_location(grid, sim_time)
 		# Check to see the speed of the car and if the car will encounter a space
 		#    that has already been occupied in this time stamp (within the same second)
 		# If the proposed space is open, and there are no cars or previosly occupied spots
