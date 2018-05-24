@@ -18,7 +18,7 @@ class Car:
 	PERC_CHANGE_TOLL = .2  # 20%
 
    # Constructor 
-	def __init__(self, row, col):
+	def __init__(self, row, col, tracked):
 		# class variables
 		self.speed = 0  # TEMP SET TO 0 # will be set when the car is created
 		self.row = row # location that the vehicle is currently at
@@ -26,6 +26,10 @@ class Car:
 		self.completed = False # If the car has left the simulation
 		self.starting_time = None  # will be set when car is spawned into the sim
 		self.finishing_time = None  # will be set when car passes the end of the road
+		self.tracked = tracked # boolean indicating that this car is tracked
+
+	def is_tracked(self):
+		return self.tracked
 
 	def _set_location(self, row, col):
 		self.row = row
@@ -113,13 +117,14 @@ class Car:
 		#    Do not take the exit and continue to move forward if there is room
 		pass
 
+	def _get_next_available_location(self, grid):
 
 
 	# This method will attempt to move the vehicle forward
 	def move_forward(self, grid):
 
 		# Create helper function to check if the spaces in front will be clear at the speed traveled
-		if self.speed == 0 and self.row < 2319: ## SECOND AND IS TEMP
+		if self.speed == 0 and self.row < LAST_INDEX: ## SECOND AND IS TEMP
 			new_row = self.row + 1
 			new_col = self.col
 			# Check to see if the proposed new spot has a car at that location
@@ -141,4 +146,5 @@ class Car:
 		# Else
 		#	 Stay still, cannot move
 		pass
+
 
