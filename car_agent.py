@@ -5,6 +5,8 @@ class Car:
 	TIME_INDEX = 1
 	LANE_TYPE_INDEX = 0
 	CHANGE_L_INDEX = 3
+	LAST_INDEX = 2320-1
+
    # Constructor 
 	def __init__(self, row, col):
 		# class variables
@@ -18,6 +20,7 @@ class Car:
 	def _set_location(self, row, col):
 		self.row = row
 		self.col = col
+
 
 	def drive(self, grid):
 	   # change lane   <-- TRAN
