@@ -132,6 +132,7 @@ class Car:
 	# This method will attempt to move the vehicle forward
 	def move_forward(self, grid, sim_time):
 
+
 		# Create helper function to check if the spaces in front will be clear at the speed traveled
 		if self.speed == 0 and self.row < LAST_INDEX: ## SECOND AND IS TEMP
 			new_row = self.row + 1
