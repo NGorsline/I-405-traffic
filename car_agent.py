@@ -1,12 +1,10 @@
 class Car:
 	MAX_SPEED = 6
 	SPEED_PER = 10.22 # mph per speed step
-	CAR = 2  # the index which holds the car value
-	TIME = 1
-	LANE_TYPE = 0
-	CHANGE_L_CAPABILITY = 3
-	LAST_INDEX = 2320 -1
-	
+	CAR_INDEX = 2  # the index which holds the car value
+	TIME_INDEX = 1
+	LANE_TYPE_INDEX = 0
+	CHANGE_L_INDEX = 3
    # Constructor 
 	def __init__(self, row, col):
 		# class variables
@@ -69,7 +67,7 @@ class Car:
 
 		# DON'T FORGET to ooo REMOVEEEE A CAR ONCE YOU'VE MOVED IT *****************************8
 		# 20% CHANCE OF GETTING IN TO TOLL LANE
-		
+		if (freeway[potential_space_switch_row, potential_space_switch_col, self.CAR])
 		# CHANGE SPEED of THE CAR 
 		
 	
@@ -87,8 +85,6 @@ class Car:
 		#    Do not take the exit and continue to move forward if there is room
 		pass
 
-	def _get_closest_available_location(self, grid):
-		
 
 
 	# This method will attempt to move the vehicle forward
