@@ -1,12 +1,14 @@
 class Car:
 	MAX_SPEED = 6
 	SPEED_PER = 10.22 # mph per speed step
+	CAR = 2  # the index which holds the car value
+	TIME = 1
    # Constructor 
 	def __init__(self, row, col):
 		# class variables
 		self.speed = 0  # TEMP SET TO 0 # will be set when the car is created
-		self.curr_row = row # location that the vehicle is currently at
-		self.curr_col = col # location that the vehicle is currently at
+		self.row = row # location that the vehicle is currently at
+		self.col = col # location that the vehicle is currently at
 		self.completed = False # If the car has left the simulation
 		self.starting_time = None  # will be set when car is spawned into the sim
 		self.finishing_time = None  # will be set when car passes the end of the road
@@ -26,24 +28,43 @@ class Car:
 
     # TRAN'S SECTION#########################################################3
 	# helper function for change_lane
-	def _closest_car_in_front_speed(self, grid, row, col): 
-		pass
-        # search for the nearest car 
+	def _closest_car_in_front(self, freeway, row, col):
+        # search for the nearest car
+		space_needed = (self.speed%10) - 1
+		index_away = 1
+		car_speed = 60.0
+
+		for i in range(6 - space_needed): 
+			if (freeway[row + i, col, self.CAR] != None):
+				return freeway[row + i, col, self.CAR].speed
+		return car_speed
+		
+				
 
 	# changing lane is moving diagionally  
 	def change_lane(self):
         # potential_space _switch < --- variable
-        # left_speed = 0
-        # right_speed = 0
+		left_speed = 0.0  # mph
+    	right_speed = 0.0 # mph
+		space_needed = (self.speed%10) - 1  # space travel within a second based on currently speed
         # Check if there's an open space next to you (left and right)
-			# diagonal space <--- sooooo left = i[self.row + 1][self.col +1 or -1][tuple car object] == None
         #### checking which lane is faster
-        # if (left space exists)
-            # left_speed = _closest_car_in_front_speed(grid, row_of_left_space, col_of_left_space)
-        # if (right space exists)
-            # right_speed = _closest_car_in_front_speed(grid, row_of_right_space, col_of_right_space)
+        if (freeway[self.row + space_needed, self.col -1, self.CAR] != None):  # if left space exists
+			left_speed = _closest_car_in_front_speed(freeway, self.row + space_needed, self.col - 1)
+        if (freeway[self.row + space_needed, self.col +1, self.CAR] != None):  # if right space exists
+            right_speed = _closest_car_in_front_speed(freeway, self.row + space_needed, self.col + 1)
+		
+
+		# apparently numbers can be compared to the value type 'None'
+		if (left_speed > right_speed and left_speed > self.speed):
+			potential_space_switch_row = self.row + space_needed
+			potential_space_switch_col = self.col - 1
+		elif (right_speed > left_speed and right_speed > self.speed):
+			potential_space_switch_row = self.row + space_needed
+			potential_space_switch_col = self.col + 1
         # potential_space_switch = whichever speed is bigger (right_speed vs left_left)
-		pass
+		# DON'T FORGET to ooo REMOVEEEE A CAR ONCE YOU'VE MOVED IT *****************************8
+		
 	
 	# each freeway exit has a different percent that the driver will take it
 	# each freeway exit has only once cell in which a car can exit, and once it has
