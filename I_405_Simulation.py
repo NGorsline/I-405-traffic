@@ -33,6 +33,8 @@ CAN_CHANGE_LANES = True
 #Represents double white lines 
 CANNOT_CHANGE_LANES = False 
 TIME_SECONDS = 0
+#Keeps track of the time of selected vehicles
+list = [] 
 
 
 
@@ -83,12 +85,26 @@ def moveCars():
 
 #Needs more work
 def finishLine():
-	for i in range(freeway.shape[0]):  # placing vehicles on the map\
+	i = 6
+	#The 6th element before the finish line (element = 2313)
+	element = 2313
+	while(i):
+		#Check for vehicles in the current row
 		for j in range(freeway.shape[1]):
-			car = freeway[i, j, 2]
-			print car.is_tracked()
-			pass
-				
+			#if there is a vehicle set it to a variable
+			if(freeway[element, j, 2] != None):
+				car = freeway[element, j, 2]
+				#if the speed is greater than the length that it can travel in one time step
+				#calculate the time and store it in a list 
+				if ((car.MAX_SPEED/10) >= i):
+					if(car.is_tracked()): 
+						#Calculating the total time, needs work
+						vehicle_total_time = car.MAX_SPEED
+						freeway[element, j, 2] = None
+					else:
+						freeway[element, j, 2] = None
+		element = element +1
+		i = i-1		
 
 def visualize():
 	visualization = np.zeros([freeway.shape[0], freeway.shape[1]])
@@ -114,12 +130,46 @@ def visualize():
 
 	d = plt.pcolor(visualization, cmap = "gist_ncar")
 
+
+
+
+###################################################################################
+######## created a smaller freeway of size 20 by 4 for testing purposes###########
+###################################################################################
+global small_freeway
+a = (20, 4, 4)
+small_freeway = np.zeros(a, dtype = object)
+def test_freeway():
+	global small_freeway
+	small_freeway[:, :, 2] = None # initilaize all cars to none
+	small_freeway[:, 1:3, 0] = REGULAR
+	small_freeway[:, 3, 0] = TOLL
+	small_freeway[:, 0, 0] = NOT_USED
+	small_freeway[:, :, 3] = CAN_CHANGE_LANES
+
+	for i in range(small_freeway.shape[0]):  # placing vehicles on the map\
+		for j in range(small_freeway.shape[1]):
+			val = np.random.uniform(0, 1)
+			if ((j == 1 or j == 2) and val < .5): # placing vehicles on regular lanes
+				small_freeway[i][j][2] = car_agent.Car(i, j, False)  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
+			elif (j == 3 and val < .25): # placing vehicles on toll lanes
+				small_freeway[i][j][2] = car_agent.Car(i, j, False)
+
+
+#################
+#Calling Methods# 
+#################
 initializeRoad()
 AddingRampsToFreeway()
-#finishLine()
-freeway[0, 1, 2] = car_agent.Car(0, 1)
+freeway[0, 1, 2] = car_agent.Car(0, 1,False)
 moveCars()
 visualize()
+
+
+test_freeway()
+
+finishLine()
+
 plt.show()
 
 top = tkinter.Tk()
