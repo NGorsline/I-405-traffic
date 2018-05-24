@@ -54,9 +54,9 @@ def initializeRoad():
 		for j in range(freeway.shape[1]):
 			val = np.random.uniform(0, 1)
 			if ((j == 1 or j == 2) and val < .5): # placing vehicles on regular lanes
-				freeway[i][j][2] = car_agent.Car(i, j)  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
+				freeway[i][j][2] = car_agent.Car(i, j, False)  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
 			elif (j == 3 and val < .25): # placing vehicles on toll lanes
-				freeway[i][j][2] = car_agent.Car(i, j)
+				freeway[i][j][2] = car_agent.Car(i, j, False)
 
 # Adds the on and off ramps to the freeway
 def AddingRampsToFreeway():
