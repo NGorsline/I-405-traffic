@@ -15,6 +15,7 @@ class Car:
 	#Represents the toll lane on the freeway
 	TOLL = 3
 	ON_RAMP = 4
+	PERC_CHANGE_TOLL = .2  # 20%
 
    # Constructor 
 	def __init__(self, row, col):
@@ -56,7 +57,7 @@ class Car:
 		return car_speed
 		  
 	def change_lane(self, freeway):
-		# DO SOME BOUNDARY CHECKING 
+		# ****************************DO SOME BOUNDARY CHECKING ***********************!!!!!!
 		# potential_space _switch < --- variable
 		left_availability = 0
 		right_availability = 0
@@ -64,10 +65,11 @@ class Car:
 
 		# check if the path to where i'll be in both lane is clear
 		for i in range(space_needed + 1):  # +1 because value in range is exclusive
-			if (freeway[self.row + i, self.col -1, self.CAR] != None): # left lane
+			if (freeway[self.row + i, self.col -1, self.CAR_INDEX] != None): # left lane
 				left_availability += 1
-			if (freeway[self.row + space_needed, self.col + 1, self.CAR] != None): # right lane
+			if (freeway[self.row + space_needed, self.col + 1, self.CAR_INDEX] != None): # right lane
 				right_availability += 1
+
 
 		# it's giving preference for right lane... like real life ;)
 		if (right_availability >= left_availability):
@@ -81,11 +83,21 @@ class Car:
 		# DON'T FORGET to ooo REMOVEEEE A CAR ONCE YOU'VE MOVED IT *****************************8
 		# 20% CHANCE OF GETTING IN TO TOLL LANE
 		if (freeway[potential_space_switch_row, potential_space_switch_col, self.LANE_TYPE_INDEX] == self.TOLL):
-
+			randNum = np_rand.uniform(0.0, 1.0)
+			if (randNum <= self.PERC_CHANGE_TOLL):
+				#CALL IT AS A FUNCTION
+				freeway[potential_space_switch_row, potential_space_switch_col, self.CAR_INDEX] = freeway[self.row, self.col, self.CAR_INDEX]
+				freeway[self.row, self.col, self.CAR_INDEX] = None
+				self._set_location(potential_space_switch_row, potential_space_switch_col)
+	
 
 		# CHANGE SPEED of THE CAR 
 		
-	
+	def _move_to_new(self, freeway, new_row, new_col): 
+		freeway[new_row, new_col, self.CAR_INDEX] = freeway[self.row, self.col, self.CAR_INDEX]
+		freeway[self.row, self.col, self.CAR_INDEX] = None
+		self._set_location(potential_space_switch_row, potential_space_switch_col)
+
 	# each freeway exit has a different percent that the driver will take it
 	# each freeway exit has only once cell in which a car can exit, and once it has
 	#     entered the exit ramp, it can not change its mind (will be forced to exit)
