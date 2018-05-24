@@ -14,8 +14,8 @@ class Car:
 		self.finishing_time = None  # will be set when car passes the end of the road
 
 	def _set_location(self, row, col):
-		self.curr_row = row
-		self.curr_col = col
+		self.row = row
+		self.col = col
 
 	def drive(self, grid):
 	   # change lane   <-- TRAN
@@ -79,18 +79,20 @@ class Car:
 		#    Do not take the exit and continue to move forward if there is room
 		pass
 
+
+
 	# This method will attempt to move the vehicle forward
 	def move_forward(self, grid):
 
 		# Create helper function to check if the spaces in front will be clear at the speed traveled
-		if self.speed == 0 and self.curr_row < 2319: ## SECOND AND IS TEMP
-			new_row = self.curr_row + 1
-			new_col = self.curr_col
+		if self.speed == 0 and self.row < 2319: ## SECOND AND IS TEMP
+			new_row = self.row + 1
+			new_col = self.col
 			# Check to see if the proposed new spot has a car at that location
 			if grid[new_row, new_col, 2] == None: # ADD AN AND TO CHECK IF THE CAR WAS JUST THERE
 				# Create helper to move car from source location to target location
-				grid[new_row, new_col, 2] = grid[self.curr_row, self.curr_col, 2]
-				grid[self.curr_row, self.curr_col, 2] = None
+				grid[new_row, new_col, 2] = grid[self.row, self.col, 2]
+				grid[self.row, self.col, 2] = None
 				self._set_location(new_row, new_col)
 		for i in range(self.speed):
 			pass
