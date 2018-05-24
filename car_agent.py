@@ -18,18 +18,18 @@ class Car:
 		self.curr_col = col
 
 	def drive(self, grid):
-       # change lane   <-- TRAN
-       # move foward (accelerate and decelerate accordingly)
+	   # change lane   <-- TRAN
+	   # move foward (accelerate and decelerate accordingly)
 	   self.move_forward(grid)
-       # enter toll lane if near it (by a percent)
-       # exit if near exit (by a percent)
-       # stay 
+	   # enter toll lane if near it (by a percent)
+	   # exit if near exit (by a percent)
+	   # stay 
 
 
-    # TRAN'S SECTION#########################################################3
+	# TRAN'S SECTION#########################################################3
 	# helper function for change_lane
 	def _closest_car_in_front(self, freeway, row, col):
-        # search for the nearest car
+		# search for the nearest car
 		space_needed = (self.speed%10) - 1
 		index_away = 1
 		car_speed = 60.0
@@ -42,17 +42,17 @@ class Car:
 				
 
 	# changing lane is moving diagionally  
-	def change_lane(self):
-        # potential_space _switch < --- variable
+	def change_lane(self, freeway):
+		# potential_space _switch < --- variable
 		left_speed = 0.0  # mph
-    	right_speed = 0.0 # mph
+		right_speed = 0.0 # mph
 		space_needed = (self.speed%10) - 1  # space travel within a second based on currently speed
-        # Check if there's an open space next to you (left and right)
-        #### checking which lane is faster
-        if (freeway[self.row + space_needed, self.col -1, self.CAR] != None):  # if left space exists
+		# Check if there's an open space next to you (left and right)
+		#### checking which lane is faster
+		if (freeway[self.row + space_needed, self.col -1, self.CAR] != None):  # if left space exists
 			left_speed = _closest_car_in_front_speed(freeway, self.row + space_needed, self.col - 1)
-        if (freeway[self.row + space_needed, self.col +1, self.CAR] != None):  # if right space exists
-            right_speed = _closest_car_in_front_speed(freeway, self.row + space_needed, self.col + 1)
+		if (freeway[self.row + space_needed, self.col +1, self.CAR] != None):  # if right space exists
+			right_speed = _closest_car_in_front_speed(freeway, self.row + space_needed, self.col + 1)
 		
 
 		# apparently numbers can be compared to the value type 'None'
@@ -62,7 +62,7 @@ class Car:
 		elif (right_speed > left_speed and right_speed > self.speed):
 			potential_space_switch_row = self.row + space_needed
 			potential_space_switch_col = self.col + 1
-        # potential_space_switch = whichever speed is bigger (right_speed vs left_left)
+		# potential_space_switch = whichever speed is bigger (right_speed vs left_left)
 		# DON'T FORGET to ooo REMOVEEEE A CAR ONCE YOU'VE MOVED IT *****************************8
 		
 	
