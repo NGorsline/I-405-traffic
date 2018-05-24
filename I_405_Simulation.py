@@ -41,6 +41,15 @@ CAN_CHANGE_LANES = True
 #Represents double white lines 
 CANNOT_CHANGE_LANES = False 
 TIME_SECONDS = 0
+#Keeps track of the time of selected vehicles
+list = [] 
+TOL_COUNT = 0
+REG_COUNT = 0
+percentReg = .75
+percentTol = .25
+percentOnramp = .1
+onrampCount = 0
+redLightSpeed = 2
 
 
 # Lane type, time last visited, car, can change
@@ -129,9 +138,21 @@ def finishLine():
 	while(i):
 		#Check for vehicles in the current row
 		for j in range(freeway.shape[1]):
-			car = freeway[i, j, 2]
-			print car.is_tracked()
-			pass
+			#if there is a vehicle set it to a variable
+			if(freeway[element, j, 2] != None):
+				car = freeway[element, j, 2]
+				#if the speed is greater than the length that it can travel in one time step
+				#calculate the time and store it in a list 
+				if ((car.MAX_SPEED/10) >= i):
+					if(car.is_tracked()): 
+						#Calculating the total time, needs work
+						vehicle_total_time = car.MAX_SPEED
+						freeway[element, j, 2] = None
+					else:
+						freeway[element, j, 2] = None
+		element = element +1
+		i = i-1		
+			
 				
 
 def visualize():
@@ -194,8 +215,10 @@ def test_freeway():
 #################
 initializeRoad()
 AddingRampsToFreeway()
+freeway[0, 1, 2] = car_agent.Car(0, 1,False)
 #finishLine()
-freeway[0, 1, 2] = car_agent.Car(0, 1)
+
+freeway[0, 1, 2] = car_agent.Car(0, 1, False)
 moveCars()
 visualize()
 
