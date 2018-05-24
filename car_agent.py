@@ -3,6 +3,8 @@ class Car:
 	SPEED_PER = 10.22 # mph per speed step
 	CAR = 2  # the index which holds the car value
 	TIME = 1
+	LANE_TYPE = 0
+	CHANGE_L_CAPABILITY = 3
    # Constructor 
 	def __init__(self, row, col):
 		# class variables
@@ -28,6 +30,9 @@ class Car:
 
 	# TRAN'S SECTION#########################################################3
 	# helper function for change_lane
+	# it returns the speed of the car in front of the parameter row col 
+	# and in front as in however many spaces in front
+	# if it does not find a car, it'll just return max speed which is 60
 	def _closest_car_in_front_speed(self, freeway, row, col):
 		# search for the nearest car
 		space_needed = (self.speed%10) - 1
@@ -37,32 +42,33 @@ class Car:
 			if (freeway[row + i, col, self.CAR] != None):
 				return freeway[row + i, col, self.CAR].speed
 		return car_speed
-		
-				
-
-	# changing lane is moving diagionally  
+		  
 	def change_lane(self, freeway):
 		# potential_space _switch < --- variable
-		left_speed = 0.0  # mph
-		right_speed = 0.0 # mph
-		space_needed = (self.speed%10) - 1  # space travel within a second based on currently speed
-		# Check if there's an open space next to you (left and right)
-		#### checking which lane is faster
-		if (freeway[self.row + space_needed, self.col -1, self.CAR] != None):  # if left space exists
-			left_speed = self._closest_car_in_front_speed(freeway, self.row + space_needed, self.col - 1)
-		if (freeway[self.row + space_needed, self.col +1, self.CAR] != None):  # if right space exists
-			right_speed = self._closest_car_in_front_speed(freeway, self.row + space_needed, self.col + 1)
-		
+		left_availability = 0
+		right_availability = 0
+		space_needed = (self.speed%10)  # space travel within a second based on currently speed
 
-		# apparently numbers can be compared to the value type 'None'
-		if (left_speed > right_speed and left_speed > self.speed):
-			potential_space_switch_row = self.row + space_needed
-			potential_space_switch_col = self.col - 1
-		elif (right_speed > left_speed and right_speed > self.speed):
+		# check if the path to where i'll be in both lane is clear
+		for i in range(space_needed + 1):  # +1 because value in range is exclusive
+			if (freeway[self.row + i, self.col -1, self.CAR] != None): # left lane
+				left_availability += 1
+			if (freeway[self.row + space_needed, self.col + 1, self.CAR] != None): # right lane
+				right_availability += 1
+
+		# it's giving preference for right lane... like real life ;)
+		if (right_availability >= left_availability):
 			potential_space_switch_row = self.row + space_needed
 			potential_space_switch_col = self.col + 1
-		# potential_space_switch = whichever speed is bigger (right_speed vs left_left)
+		elif (left_availability >= right_availability):
+			potential_space_switch_row = self.row + space_needed
+			potential_space_switch_col = self.col - 1
+		
+
 		# DON'T FORGET to ooo REMOVEEEE A CAR ONCE YOU'VE MOVED IT *****************************8
+		# 20% CHANCE OF GETTING IN TO TOLL LANE
+		
+		# CHANGE SPEED of THE CAR 
 		
 	
 	# each freeway exit has a different percent that the driver will take it
