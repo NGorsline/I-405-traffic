@@ -11,6 +11,8 @@ global freeway
 global TIME_SECONDS
 global TOL_COUNT
 global REG_COUNT
+global percentReg
+global percentTol
 
 #CONSTANTS
 #---------
@@ -37,6 +39,8 @@ CANNOT_CHANGE_LANES = False
 TIME_SECONDS = 0
 TOL_COUNT = 0
 REG_COUNT = 0
+percentReg = .75
+percentTol = .25
 
 
 # Lane type, time last visited, car, can change
@@ -59,10 +63,10 @@ def initializeRoad():
 	for i in range(freeway.shape[0]):  # placing vehicles on the map\
 		for j in range(freeway.shape[1]):
 			val = np.random.uniform(0, 1)
-			if ((j == 1 or j == 2) and val < .5): # placing vehicles on regular lanes
+			if ((j == 1 or j == 2) and val < percentReg): # placing vehicles on regular lanes
 				freeway[i][j][2] = car_agent.Car(i, j, False)  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
 				REG_COUNT += 1
-			elif (j == 3 and val < .25): # placing vehicles on toll lanes
+			elif (j == 3 and val < percentTol): # placing vehicles on toll lanes
 				freeway[i][j][2] = car_agent.Car(i, j, False)
 				TOL_COUNT += 1
 
@@ -91,10 +95,10 @@ def addAgent():
 
 	for i in range(1, freeway.shape[1]):
 		val = np.random.uniform(0, 1)
-		if ((i == 1 or i == 2) and val < .5 and freeway[0, i, 1] != TIME_SECONDS):
+		if ((i == 1 or i == 2) and val < percentReg and freeway[0, i, 1] != TIME_SECONDS):
 			freeway[0][i][2] = car_agent.Car(0, i, False)
 			REG_COUNT += 1
-		elif (i == 3 and val < .2 and freeway[0, i, 1] != TIME_SECONDS):
+		elif (i == 3 and val < percentTol and freeway[0, i, 1] != TIME_SECONDS):
 			freeway[0, i, 2] = car_agent.Car(0, i, False)
 			TOL_COUNT += 1
 
@@ -103,6 +107,7 @@ def moveCars():
 
 	while TIME_SECONDS < 20:
 		moveCarsHelper()
+		addAgent()
 		TIME_SECONDS += 1
 
 #Needs more work
