@@ -134,7 +134,7 @@ class Car:
 		
 
 		# Create helper function to check if the spaces in front will be clear at the speed traveled
-		if self.speed == 0 and self.row < self.LAST_INDEX: ## SECOND AND IS TEMP
+		if self.row < self.LAST_INDEX: ## SECOND AND IS TEMP  #self.speed == 0 <-- add this back in
 			new_row = self.row + 1
 			new_col = self.col
 			# Check to see if the proposed new spot has a car at that location
