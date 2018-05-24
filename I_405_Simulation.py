@@ -122,44 +122,60 @@ def addAgent():
 
 def moveCars():
 	global TIME_SECONDS
+	i = 0
+	if (i == 1):
+		freeway[1][1][1] = 90
 
 	while TIME_SECONDS < 200:
+		finishLine()
 		moveCarsHelper()
 		addAgent()
 		TIME_SECONDS += 1
+		visualize()
+		plt.pause(.01)
 		
 		
 
 #Needs more work
 def finishLine():
+	global TOL_COUNT
+	global REG_COUNT
+
 	i = 6
 	#The 6th element before the finish line (element = 2313)
 	element = 2313
-	while(i):
 		#Check for vehicles in the current row
-		for j in range(freeway.shape[1]):
+	for j in range(element, freeway.shape[0]):
+		for k in range(freeway.shape[1]):
 			#if there is a vehicle set it to a variable
-			if(freeway[element, j, 2] != None):
-				car = freeway[element, j, 2]
+			if(freeway[j, k, 2] != None):
+				car = freeway[j, k, 2]
 				#if the speed is greater than the length that it can travel in one time step
 				#calculate the time and store it in a list 
-				if ((car.MAX_SPEED/10) >= i):
+				if ((car.MAX_SPEED) > i):
 					if(car.is_tracked()): 
 						#Calculating the total time, needs work
 						vehicle_total_time = car.MAX_SPEED
-						freeway[element, j, 2] = None
+						freeway[j, k, 2] = None
+						if (k == 3):
+							TOL_COUNT -= 1
+						else:
+							REG_COUNT -= 1
 					else:
-						freeway[element, j, 2] = None
-		element = element +1
+						freeway[j, k, 2] = None
+						if (k == 3):
+							TOL_COUNT -= 1
+						else:
+							REG_COUNT -= 1
 		i = i-1		
 			
 				
 
 def visualize():
 	laneVis = np.zeros([freeway.shape[0], freeway.shape[1]])
-	carVis = np.zeros([freeway.shape[0], freeway.shape[1]])
-	for i in range(freeway.shape[0]):
-		for j in range(freeway.shape[1]):
+	carVis = np.zeros([10, 4])
+	for i in range(10):
+		for j in range(4):
 			#if freeway[i][j][0] == -1:
 			#	laneVis[i][j] = 800
 			#if freeway[i][j][0] == 1:
@@ -174,15 +190,15 @@ def visualize():
 				carVis[i][j] = 900
 			if type(freeway[i][j][2]) is car_agent.Car:
 				carVis[i][j] = 200
-			if freeway[i][j][3] == True:
-				laneVis[i][j] = 500
-			if freeway[i][j][3] == False:
-				laneVis[i][j] = 200
+			#if freeway[i][j][3] == True:
+			#	laneVis[i][j] = 500
+			#if freeway[i][j][3] == False:
+			#	laneVis[i][j] = 200
 			#visualization[i][j] = freeway[i][j][1] * 10
 
 	
-	d = plt.pcolor(laneVis, cmap = "gist_ncar")
-	#c = plt.pcolor(carVis, cmap = "winter")
+	#d = plt.pcolor(laneVis, cmap = "gist_ncar")
+	c = plt.pcolor(carVis, cmap = "winter")
 
 
 
@@ -220,14 +236,10 @@ freeway[0, 1, 2] = car_agent.Car(0, 1,False)
 
 freeway[0, 1, 2] = car_agent.Car(0, 1, False)
 moveCars()
-visualize()
 
 
-test_freeway()
 
-finishLine()
-
-plt.show()
+#test_freeway()
 print(REG_COUNT)
 print(TOL_COUNT)
 
