@@ -16,6 +16,10 @@ global percentTol
 global percentOnramp
 global onrampCount
 global redLightSpeed
+global entrance1
+global entrance2
+global entrance3
+global entrance4
 
 
 #CONSTANTS
@@ -49,8 +53,11 @@ percentReg = .75
 percentTol = .25
 percentOnramp = .1
 onrampCount = 0
-redLightSpeed = 2
-
+redLightSpeed = 8
+entrance1 = 845
+entrance2 = 1654
+entrance3 = 1901
+entrance4 = 2213
 
 # Lane type, time last visited, car, can change
 s = (MILES, LANES, 4)
@@ -61,8 +68,6 @@ def initializeRoad():
 	global TOL_COUNT
 	global freeway
 	global REG_COUNT
-	global percentOnramp
-	global onrampCount
 
 	freeway[:, :, 2] = None # initilaize all cars to none
 	freeway[:, 1:3, 0] = REGULAR
@@ -74,9 +79,6 @@ def initializeRoad():
 	for i in range(freeway.shape[0]):  # placing vehicles on the map\
 		for j in range(freeway.shape[1]):
 			val = np.random.uniform(0, 1)
-			if (j == 0 and val < percentOnramp):
-				freeway[i][j][2] = car_agent.Car(i, j, False)
-				onrampCount += 1
 			if ((j == 1 or j == 2) and val < percentReg): # placing vehicles on regular lanes
 				freeway[i][j][2] = car_agent.Car(i, j, False) 
 				REG_COUNT += 1
@@ -88,12 +90,17 @@ def initializeRoad():
 # Adds the on and off ramps to the freeway
 def AddingRampsToFreeway():
 	for i in range(len(freeway)):
+		val = np.random.uniform(0, 1)
 		#setting the off ramps value to the freeway
 		if (i >= 774 and i <= 844) or (i >= 1547 and i <= 1653) or (i >= 1794 and i <= 1900):
 			freeway[i, 0, 0] = OFF_RAMP
+			if (val < percentOnramp):
+				freeway[i, 0, 2] = car_agent.Car(i, 0, False)
 		 #setting the on ramps value to the freeway
-		if (i >= 845 and i <= 951) or (i >= 1654 and i <= 1724) or (i >= 1901 and i <= 2042) or (i >= 2213 and i <= 2320):
+		if (i >= entrance1 and i <= 951) or (i >= entrance2 and i <= 1724) or (i >= entrance3 and i <= 2042) or (i >= entrance4 and i <= 2320):
 			freeway[i, 0, 0] = ON_RAMP
+			if (val < percentOnramp):
+				freeway[i, 0, 2] = car_agent.Car(i, 0, False)
 
 def moveCarsHelper():
 	for i in range(freeway.shape[0] - 1, -1, -1):
@@ -107,18 +114,26 @@ def addAgent():
 	global TOL_COUNT
 	global TIME_SECONDS
 	global redLightSpeed
+	global entrance1
+	global entrance2
+	global entrance3
+	global entrance4
 	
-
 	for i in range(freeway.shape[1]):
 		val = np.random.uniform(0, 1)
-		if (i == 0 and TIME_SECONDS % redLightSpeed == 0):
-			freeway[0][i][2] = car_agent.Car(0, i, False)
 		if ((i == 1 or i == 2) and val < percentReg and freeway[0, i, 1] != TIME_SECONDS):
 			freeway[0][i][2] = car_agent.Car(0, i, False)
 			REG_COUNT += 1
 		elif (i == 3 and val < percentTol and freeway[0, i, 1] != TIME_SECONDS):
 			freeway[0, i, 2] = car_agent.Car(0, i, False)
 			TOL_COUNT += 1
+
+	# adding cars to the on ramps
+	if (TIME_SECONDS % redLightSpeed == 0):
+		freeway[entrance1][0][2] = car_agent.Car(entrance1, 0, False)
+		freeway[entrance2][0][2] = car_agent.Car(entrance2, 0, False)
+		freeway[entrance3][0][2] = car_agent.Car(entrance3, 0, False)
+		freeway[entrance4][0][2] = car_agent.Car(entrance4, 0, False)
 
 def moveCars():
 	global TIME_SECONDS
@@ -132,7 +147,7 @@ def moveCars():
 		addAgent()
 		TIME_SECONDS += 1
 		visualize()
-		plt.pause(.01)
+		plt.pause(.0001)
 		
 		
 
@@ -170,11 +185,19 @@ def finishLine():
 		i = i-1		
 			
 				
-
+######################################################################
+# Very Basic Visualization!!!
+# 
+# Uncomment laneVis parts to see the lanes, uncomment carVis
+# parts to see the cars.
+#
+# Green = Car
+# Black = Road
+######################################################################
 def visualize():
 	laneVis = np.zeros([freeway.shape[0], freeway.shape[1]])
-	carVis = np.zeros([10, 4])
-	for i in range(10):
+	carVis = np.zeros([100, 4])
+	for i in range(100):
 		for j in range(4):
 			#if freeway[i][j][0] == -1:
 			#	laneVis[i][j] = 800
@@ -186,19 +209,14 @@ def visualize():
 			#	laneVis[i][j] = 900
 			#if freeway[i][j][0] == 4:
 			#	laneVis[i][j] = 100
-			if freeway[i][j][2] == None:
+			if freeway[i + 800][j][2] == None:
 				carVis[i][j] = 900
-			if type(freeway[i][j][2]) is car_agent.Car:
-				carVis[i][j] = 200
-			#if freeway[i][j][3] == True:
-			#	laneVis[i][j] = 500
-			#if freeway[i][j][3] == False:
-			#	laneVis[i][j] = 200
-			#visualization[i][j] = freeway[i][j][1] * 10
+			if type(freeway[i + 800][j][2]) is car_agent.Car:
+				carVis[i][j] = 100
 
 	
 	#d = plt.pcolor(laneVis, cmap = "gist_ncar")
-	c = plt.pcolor(carVis, cmap = "winter")
+	c = plt.pcolor(carVis, cmap = "Dark2")
 
 
 
@@ -233,15 +251,13 @@ initializeRoad()
 AddingRampsToFreeway()
 freeway[0, 1, 2] = car_agent.Car(0, 1,False)
 #finishLine()
-
 freeway[0, 1, 2] = car_agent.Car(0, 1, False)
 moveCars()
-
-
-
 #test_freeway()
 print(REG_COUNT)
 print(TOL_COUNT)
+#####################################################################
+#####################################################################
 
 
 #top = tkinter.Tk()
