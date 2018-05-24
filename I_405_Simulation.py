@@ -50,13 +50,13 @@ def initializeRoad():
 	freeway[:, :, 3] = CAN_CHANGE_LANES
 	freeway[1232:, 3, 3] = CANNOT_CHANGE_LANES
 
-	for i in range(freeway.shape[0]):  # placing vehicles on the map
+	for i in range(freeway.shape[0]):  # placing vehicles on the map\
 		for j in range(freeway.shape[1]):
 			val = np.random.uniform(0, 1)
 			if ((j == 1 or j == 2) and val < .5): # placing vehicles on regular lanes
-				freeway[i][j][2] = car_agent.Car(i, j)  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
+				freeway[i][j][2] = car_agent.Car(i, j, False)  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
 			elif (j == 3 and val < .25): # placing vehicles on toll lanes
-				freeway[i][j][2] = car_agent.Car(i, j)
+				freeway[i][j][2] = car_agent.Car(i, j, False)
 
 # Adds the on and off ramps to the freeway
 def AddingRampsToFreeway():
@@ -80,6 +80,15 @@ def moveCars():
 	while TIME_SECONDS < 20:
 		moveCarsHelper()
 		TIME_SECONDS += 1
+
+#Needs more work
+def finishLine():
+	for i in range(freeway.shape[0]):  # placing vehicles on the map\
+		for j in range(freeway.shape[1]):
+			car = freeway[i, j, 2]
+			print car.is_tracked()
+			pass
+				
 
 def visualize():
 	visualization = np.zeros([freeway.shape[0], freeway.shape[1]])
@@ -107,6 +116,7 @@ def visualize():
 
 initializeRoad()
 AddingRampsToFreeway()
+#finishLine()
 freeway[0, 1, 2] = car_agent.Car(0, 1)
 moveCars()
 visualize()
@@ -123,6 +133,7 @@ C.create_line(277,200,277,700)
 
 C.pack()
 top.mainloop()
+
 
 
 #top = tkinter.Tk()

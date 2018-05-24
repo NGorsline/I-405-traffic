@@ -15,6 +15,7 @@ class Car:
 	#Represents the toll lane on the freeway
 	TOLL = 3
 	ON_RAMP = 4
+	
 
    # Constructor 
 	def __init__(self, row, col, tracked):
@@ -84,8 +85,8 @@ class Car:
 
 		# DON'T FORGET to ooo REMOVEEEE A CAR ONCE YOU'VE MOVED IT *****************************8
 		# 20% CHANCE OF GETTING IN TO TOLL LANE
-		if (freeway[potential_space_switch_row, potential_space_switch_col, self.LANE_TYPE_INDEX] == self.TOLL):
-
+		
+		#if (freeway[potential_space_switch_row, potential_space_switch_col, self.LANE_TYPE_INDEX] == self.TOLL):
 
 		# CHANGE SPEED of THE CAR 
 		
@@ -105,11 +106,10 @@ class Car:
 		pass
 
 	def _get_next_available_location(self, grid):
-
+		pass
 
 	# This method will attempt to move the vehicle forward
 	def move_forward(self, grid):
-
 		# Create helper function to check if the spaces in front will be clear at the speed traveled
 		if self.speed == 0 and self.row < LAST_INDEX: ## SECOND AND IS TEMP
 			new_row = self.row + 1
