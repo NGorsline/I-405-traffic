@@ -28,10 +28,9 @@ class Car:
 
 	# TRAN'S SECTION#########################################################3
 	# helper function for change_lane
-	def _closest_car_in_front(self, freeway, row, col):
+	def _closest_car_in_front_speed(self, freeway, row, col):
 		# search for the nearest car
 		space_needed = (self.speed%10) - 1
-		index_away = 1
 		car_speed = 60.0
 
 		for i in range(6 - space_needed): 
@@ -50,9 +49,9 @@ class Car:
 		# Check if there's an open space next to you (left and right)
 		#### checking which lane is faster
 		if (freeway[self.row + space_needed, self.col -1, self.CAR] != None):  # if left space exists
-			left_speed = _closest_car_in_front_speed(freeway, self.row + space_needed, self.col - 1)
+			left_speed = self._closest_car_in_front_speed(freeway, self.row + space_needed, self.col - 1)
 		if (freeway[self.row + space_needed, self.col +1, self.CAR] != None):  # if right space exists
-			right_speed = _closest_car_in_front_speed(freeway, self.row + space_needed, self.col + 1)
+			right_speed = self._closest_car_in_front_speed(freeway, self.row + space_needed, self.col + 1)
 		
 
 		# apparently numbers can be compared to the value type 'None'
