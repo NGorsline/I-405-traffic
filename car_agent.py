@@ -86,6 +86,7 @@ class Car:
 			randNum = np_rand.uniform(0.0, 1.0)
 			if (randNum <= self.PERC_CHANGE_TOLL):
 				#CALL IT AS A FUNCTION
+			
 				freeway[potential_space_switch_row, potential_space_switch_col, self.CAR_INDEX] = freeway[self.row, self.col, self.CAR_INDEX]
 				freeway[self.row, self.col, self.CAR_INDEX] = None
 				self._set_location(potential_space_switch_row, potential_space_switch_col)
