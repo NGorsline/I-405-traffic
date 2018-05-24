@@ -5,6 +5,8 @@ class Car:
 	TIME = 1
 	LANE_TYPE = 0
 	CHANGE_L_CAPABILITY = 3
+	LAST_INDEX = 2320 -1
+	
    # Constructor 
 	def __init__(self, row, col):
 		# class variables
@@ -85,6 +87,8 @@ class Car:
 		#    Do not take the exit and continue to move forward if there is room
 		pass
 
+	def _get_closest_available_location(self, grid):
+		
 
 
 	# This method will attempt to move the vehicle forward
