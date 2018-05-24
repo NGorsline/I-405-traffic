@@ -13,6 +13,10 @@ global TOL_COUNT
 global REG_COUNT
 global percentReg
 global percentTol
+global percentOnramp
+global onrampCount
+global redLightSpeed
+
 
 #CONSTANTS
 #---------
@@ -41,6 +45,9 @@ TOL_COUNT = 0
 REG_COUNT = 0
 percentReg = .75
 percentTol = .25
+percentOnramp = .1
+onrampCount = 0
+redLightSpeed = 2
 
 
 # Lane type, time last visited, car, can change
@@ -52,19 +59,24 @@ def initializeRoad():
 	global TOL_COUNT
 	global freeway
 	global REG_COUNT
+	global percentOnramp
+	global onrampCount
 
 	freeway[:, :, 2] = None # initilaize all cars to none
 	freeway[:, 1:3, 0] = REGULAR
 	freeway[:, 3, 0] = TOLL
 	freeway[:, 0, 0] = NOT_USED
-	freeway[:, :, 3] = CAN_CHANGE_LANES
-	freeway[1232:, 3, 3] = CANNOT_CHANGE_LANES
+	freeway[:, :, 3] = CANNOT_CHANGE_LANES
+	freeway[1232:, 3, 3] = CAN_CHANGE_LANES
 
 	for i in range(freeway.shape[0]):  # placing vehicles on the map\
 		for j in range(freeway.shape[1]):
 			val = np.random.uniform(0, 1)
+			if (j == 0 and val < percentOnramp):
+				freeway[i][j][2] = car_agent.Car(i, j, False)
+				onrampCount += 1
 			if ((j == 1 or j == 2) and val < percentReg): # placing vehicles on regular lanes
-				freeway[i][j][2] = car_agent.Car(i, j, False)  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
+				freeway[i][j][2] = car_agent.Car(i, j, False) 
 				REG_COUNT += 1
 			elif (j == 3 and val < percentTol): # placing vehicles on toll lanes
 				freeway[i][j][2] = car_agent.Car(i, j, False)
@@ -87,14 +99,18 @@ def moveCarsHelper():
 			if type(freeway[i, j, 2]) is car_agent.Car:
 				freeway[i, j, 2].drive(freeway, TIME_SECONDS)
 
+
 def addAgent():
 	global REG_COUNT
 	global TOL_COUNT
 	global TIME_SECONDS
+	global redLightSpeed
 	
 
-	for i in range(1, freeway.shape[1]):
+	for i in range(freeway.shape[1]):
 		val = np.random.uniform(0, 1)
+		if (i == 0 and TIME_SECONDS % redLightSpeed == 0):
+			freeway[0][i][2] = car_agent.Car(0, i, False)
 		if ((i == 1 or i == 2) and val < percentReg and freeway[0, i, 1] != TIME_SECONDS):
 			freeway[0][i][2] = car_agent.Car(0, i, False)
 			REG_COUNT += 1
@@ -105,10 +121,12 @@ def addAgent():
 def moveCars():
 	global TIME_SECONDS
 
-	while TIME_SECONDS < 20:
+	while TIME_SECONDS < 200:
 		moveCarsHelper()
 		addAgent()
 		TIME_SECONDS += 1
+		
+		
 
 #Needs more work
 def finishLine():
@@ -120,28 +138,33 @@ def finishLine():
 				
 
 def visualize():
-	visualization = np.zeros([freeway.shape[0], freeway.shape[1]])
+	laneVis = np.zeros([freeway.shape[0], freeway.shape[1]])
+	carVis = np.zeros([freeway.shape[0], freeway.shape[1]])
 	for i in range(freeway.shape[0]):
 		for j in range(freeway.shape[1]):
-			if freeway[i][j][0] == -1:
-				visualization[i][j] = 800
-			if freeway[i][j][0] == 1:
-				visualization[i][j] = 300
-			if freeway[i][j][0] == 3:
-				visualization[i][j] = 600
-			if freeway[i][j][0] == 2:
-				visualization[i][j] = 900
-			#if freeway[i][j][2] == None:
-			#	visualization[i][j] = 900
-			#if type(freeway[i][j][2]) is car_agent.Car:
-			#	visualization[i][j] = 1200
-			#if freeway[i][j][3] == True:
-			#	visualization[i][j] = 1500
-			#if freeway[i][j][3] == False:
-			#	visualization[i][j] = 1800
+			#if freeway[i][j][0] == -1:
+			#	laneVis[i][j] = 800
+			#if freeway[i][j][0] == 1:
+			#	laneVis[i][j] = 300
+			#if freeway[i][j][0] == 3:
+			#	laneVis[i][j] = 600
+			#if freeway[i][j][0] == 2:
+			#	laneVis[i][j] = 900
+			#if freeway[i][j][0] == 4:
+			#	laneVis[i][j] = 100
+			if freeway[i][j][2] == None:
+				carVis[i][j] = 900
+			if type(freeway[i][j][2]) is car_agent.Car:
+				carVis[i][j] = 200
+			if freeway[i][j][3] == True:
+				laneVis[i][j] = 500
+			if freeway[i][j][3] == False:
+				laneVis[i][j] = 200
 			#visualization[i][j] = freeway[i][j][1] * 10
 
-	d = plt.pcolor(visualization, cmap = "gist_ncar")
+	
+	d = plt.pcolor(laneVis, cmap = "gist_ncar")
+	#c = plt.pcolor(carVis, cmap = "winter")
 
 initializeRoad()
 AddingRampsToFreeway()
@@ -150,18 +173,19 @@ AddingRampsToFreeway()
 freeway[0, 1, 2] = car_agent.Car(0, 1, False)
 moveCars()
 visualize()
+plt.show()
 print(REG_COUNT)
 print(TOL_COUNT)
-plt.show()
 
-top = tkinter.Tk()
-top.config(width=400, height=700)
-C = tkinter.Canvas(top,bg="dark green", height=700, width=400)
-C.create_rectangle(50, 0, 350, 700, fill="grey", outline = 'blue')
-C.create_line(125,0,125,700)
-C.create_line(200,0,200,700)
-C.create_line(273,0,273,700)
-C.create_line(277,200,277,700)
+
+#top = tkinter.Tk()
+#top.config(width=400, height=700)
+#C = tkinter.Canvas(top,bg="dark green", height=700, width=400)
+#C.create_rectangle(50, 0, 350, 700, fill="grey", outline = 'blue')
+#C.create_line(125,0,125,700)
+#C.create_line(200,0,200,700)
+#C.create_line(273,0,273,700)
+#C.create_line(277,200,277,700)
 
 #C.pack()
 #top.mainloop()
