@@ -44,12 +44,32 @@ class Car:
 
 
 	def drive(self, grid, sim_time):
-	   # change lane   <-- TRAN
-	   # move foward (accelerate and decelerate accordingly)
-	   self.move_forward(grid, sim_time)
-	   # enter toll lane if near it (by a percent)
-	   # exit if near exit (by a percent)
-	   # stay 
+		#################################### SOME PSEUDOCODE MADE by TRAN 
+		# if this car is in the regular lane
+			# it might change lane by 30%
+				# within change lane function, the car might go into the toll lane by 20% if it's next to a dotted line section
+				# 70% it will go straight
+			# if this regular lane car is next to an exit, it might exit by the percentage specified at that exit??? <--- IS THIS TOO FANCY
+			# FANCY FEATURE: if this car is next to an on ramp, and a car is right "next" to it on the on ramp, 
+							# it'll either increase its speed by whatever_the_other_car_speed_is+2, or slow down by whatever_the_other_car_speed_is-1
+							# JKKK THIS IS SHITTY I DON'T WANNA DO IT
+		# if this car is in the toll lane
+			# it might change out if it's at a dotted line section by 5%????? i'm pulling 5% out of my ass
+			# else i'll go straight
+
+		# if this car is on the on-ramp
+			# it will move to the end of the ramp and attempt to merge if there's an open space
+			# johnny boi wants some type of look ahead by the cars in the main road, but fuck that right?
+			# ---> shit's too fancy
+		####################################	
+		# change lane   <-- TRAN
+		# if thIS car is in the toll lane and it's at a spot where it could switch out of 
+				# it might just do it FOR SOME CHANCE
+		# move foward (accelerate and decelerate accordingly)
+		self.move_forward(grid, sim_time)
+		# enter toll lane if near it (by a percent)
+		# exit if near exit (by a percent)
+		# stay 
 
 
 	# TRAN'S SECTION#########################################################3
@@ -125,7 +145,7 @@ class Car:
 						right_availability += 1
 
 		# it's giving preference for right lane... like real life ;)
-		# it might not get into this if else if block at all 
+		# it might not get into this if elif if block at all 
 		# if that happens, the car will just keep driving moving forward.
 		if (right_availability >= left_availability and right_availability == space_needed):
 			potential_space_switch_row = self.row + space_needed
@@ -147,13 +167,18 @@ class Car:
 			if (randNum <= self.PERC_CHANGE_TOLL):
 				self._move_to_new(freeway, potential_space_switch_row, potential_space_switch_col)
 			# else if you didn't get under the random values, the car will just stay
-			else: 
-				pass
+			else:
+				self.move_forward(freeway, sim_time)
+		
+		# REGULAR GUYS
 		if (freeway[potential_space_switch_row, potential_space_switch_col, self.LANE_TYPE_INDEX == self.REGULAR]):
 			self._move_to_new(freeway, potential_space_switch_row, potential_space_switch_col)
 		# CHANGE SPEED of THE CAR
 		if (self.speed < self.MAX_SPEED): 
 			self.speed += 1
+
+	def toll_car_change_l(self, freeway):
+		pass
 
 	'''
 		Moves this current car to a new row col, deleting it from where it is at right now
