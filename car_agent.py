@@ -43,10 +43,10 @@ class Car:
 		self.col = col
 
 
-	def drive(self, grid):
+	def drive(self, grid, sim_time):
 	   # change lane   <-- TRAN
 	   # move foward (accelerate and decelerate accordingly)
-	   self.move_forward(grid)
+	   self.move_forward(grid, sim_time)
 	   # enter toll lane if near it (by a percent)
 	   # exit if near exit (by a percent)
 	   # stay 
@@ -157,23 +157,47 @@ class Car:
 		#    Do not take the exit and continue to move forward if there is room
 		pass
 
-	def _get_next_available_location(self, grid):
-		pass
+	def _get_next_available_location(self, grid, sim_time):
+		index_free = 0
+		# Loop from one in front to 6 in front
+		for i in range(1, 7): 
+			row_to_check = self.row + i
+			grid_to_check = grid[row_to_check, self.col]
+			if row_to_check < self.LAST_INDEX and sim_time != grid_to_check[self.TIME_INDEX] and grid_to_check[self.CAR_INDEX] == None:
+				index_free = index_free + 1
+			else:
+				break
+		return index_free
 
 	# This method will attempt to move the vehicle forward
-	def move_forward(self, grid):
+	def move_forward(self, grid, sim_time):
+
+		grid[self.row, self.col, self.TIME_INDEX] = sim_time
+
 		# Create helper function to check if the spaces in front will be clear at the speed traveled
-		if self.speed == 0 and self.row < LAST_INDEX: ## SECOND AND IS TEMP
+		if self.speed == 0 and self.row < self.LAST_INDEX: 
+			# Dropping current time to spot at to update for next agent if needed
 			new_row = self.row + 1
 			new_col = self.col
-			# Check to see if the proposed new spot has a car at that location
-			if grid[new_row, new_col, 2] == None: # ADD AN AND TO CHECK IF THE CAR WAS JUST THERE
+			# Check to see if the proposed new spot has a car at that location or had one on the same time stamp
+			if grid[new_row, new_col, self.CAR_INDEX] == None and grid[new_row, new_col, self.TIME_INDEX] != sim_time:
 				# Create helper to move car from source location to target location
 				grid[new_row, new_col, 2] = grid[self.row, self.col, 2]
 				grid[self.row, self.col, 2] = None
 				self._set_location(new_row, new_col)
-		for i in range(self.speed):
-			pass
+				if(self.speed < self.MAX_SPEED):
+					#self.speed += 1
+					pass #for now
+		
+		# this else will never be hit
+		else:
+			
+			val = self._get_next_available_location(grid, sim_time)
+			if val < self.speed:
+				self._move_to_new(grid, self.row + val, self.col)
+			else:
+				self._move_to_new(grid, self.row + self.speed, self.col)
+				self.speed += 1
 		# Check to see the speed of the car and if the car will encounter a space
 		#    that has already been occupied in this time stamp (within the same second)
 		# If the proposed space is open, and there are no cars or previosly occupied spots
