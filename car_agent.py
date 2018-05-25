@@ -133,7 +133,11 @@ class Car:
 		if (freeway[potential_space_switch_row, potential_space_switch_col, self.LANE_TYPE_INDEX == self.REGULAR]):
 			one = 1 # TEMPEROJRARRARYRYYYY
 		# CHANGE SPEED of THE CAR 
-		
+
+	'''
+		Moves this current car to a new row col, deleting it from where it is at right now
+		Parameter: new_row and new_col is the new location
+	'''	
 	def _move_to_new(self, freeway, new_row, new_col): 
 		freeway[new_row, new_col, self.CAR_INDEX] = freeway[self.row, self.col, self.CAR_INDEX]
 		freeway[self.row, self.col, self.CAR_INDEX] = None
