@@ -235,29 +235,14 @@ class Car:
 				grid[new_row, new_col, 2] = grid[self.row, self.col, 2]
 				grid[self.row, self.col, 2] = None
 				self._set_location(new_row, new_col)
+
 				if(self.speed < self.MAX_SPEED):
-					#self.speed += 1
-					pass #for now
+					self.speed += 1
 		
-		# this else will never be hit
 		else:
-			
 			val = self._get_next_available_location(grid, sim_time)
 			if val < self.speed:
 				self._move_to_new(grid, self.row + val, self.col)
 			else:
 				self._move_to_new(grid, self.row + self.speed, self.col)
 				self.speed += 1
-		# Check to see the speed of the car and if the car will encounter a space
-		#    that has already been occupied in this time stamp (within the same second)
-		# If the proposed space is open, and there are no cars or previosly occupied spots
-		# in that path
-		#	 The car can move forward
-		# Else if the car will encounter a vehicle
-		#	 then it will go as close as it can to the car infront without
-		#	 going on the same spot, or on a spot previously occupied that time stamp
-		# Else
-		#	 Stay still, cannot move
-		pass
-
-
