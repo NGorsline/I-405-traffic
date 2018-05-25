@@ -7,7 +7,11 @@ class Car:
 	TIME_INDEX = 1
 	LANE_TYPE_INDEX = 0
 	CHANGE_L_INDEX = 3
+
+	# numbers for initializing the grid
+	NUM_LANES = 4 
 	LAST_INDEX = 2320-1
+
 	#Represents regular lanes in the freeway
 	REGULAR = 1
 	#Represents the off ramp on the freeway
@@ -15,8 +19,11 @@ class Car:
 	#Represents the toll lane on the freeway
 	TOLL = 3
 	ON_RAMP = 4
+	# Value that represents this lane is not used, it's not a lane at all...
+	NOT_USED = -1
 	PERC_CHANGE_TOLL = .2  # 20%
-
+	
+	
    # Constructor 
 	def __init__(self, row, col, tracked):
 		# class variables
@@ -60,40 +67,72 @@ class Car:
 				return freeway[row + i, col, self.CAR].speed
 		return car_speed
 		  
+
+	def _is_lane_out_of_bound(self, lane):
+		if (lane >= 0 and lane < self.NUM_LANES):
+			return True
+		return False
+
+	# checking for if
+	def _can_change_into(self, freeway, row, col):
+		if ((freeway[row, col, self.LANE_TYPE_INDEX] != self.NOT_USED) and \
+			(freeway[row, col, self.LANE_TYPE_INDEX] != self.ON_RAMP) and \
+			(freeway[row, col, self.LANE_TYPE_INDEX] != self.OFF_RAMP)):
+			return True
+		return False
+
 	def change_lane(self, freeway):
 		# ****************************DO SOME BOUNDARY CHECKING ***********************!!!!!!
-		# potential_space _switch < --- variable
+		# SOME HOT VARIABLES 
 		left_availability = 0
 		right_availability = 0
 		space_needed = (self.speed%10)  # space travel within a second based on currently speed
+		left_lane_col = self.col - 1
+		left_lane_in_bound = self._is_lane_out_of_bound(left_lane_col)
+		right_lane_col = self.col + 1
+		right_lane_in_bound = self._is_lane_out_of_bound(right_lane_col)
 
 		# check if the path to where i'll be in both lane is clear
-		for i in range(space_needed + 1):  # +1 because value in range is exclusive
-			if (freeway[self.row + i, self.col -1, self.CAR_INDEX] != None): # left lane
-				left_availability += 1
-			if (freeway[self.row + space_needed, self.col + 1, self.CAR_INDEX] != None): # right lane
-				right_availability += 1
+		# +1 because value in range is exclusive
+		# and start at 1 because i don't care to check for where i am currently at 
+		for i in range(1, space_needed + 1):  
+			
+			if (self.row + i <= self.LAST_INDEX):
+				# left lane
+				if (left_lane_in_bound):
+					if (freeway[self.row + i, left_lane_col, self.CAR_INDEX] != None and \
+						self._can_change_into(freeway, row + i, left_lane_col)): 
+						left_availability += 1
 
+				# right lane
+				if (right_lane_in_bound):
+					if (freeway[self.row + i, right_lane_col, self.CAR_INDEX] != None and \
+						self._can_change_into(freeway, row + i, right_lane_col)): 
+						right_availability += 1
 
 		# it's giving preference for right lane... like real life ;)
 		if (right_availability >= left_availability):
 			potential_space_switch_row = self.row + space_needed
-			potential_space_switch_col = self.col + 1
+			potential_space_switch_col = right_lane_col
 		elif (left_availability >= right_availability):
 			potential_space_switch_row = self.row + space_needed
-			potential_space_switch_col = self.col - 1
+			potential_space_switch_col = left_lane_col
 		
-
+		# #########################IT MIGHT NOT MAKE SENSE TO DO THIS, IT SHOULD BE A FUNCTION#############################
 		# DON'T FORGET to ooo REMOVEEEE A CAR ONCE YOU'VE MOVED IT *****************************8
-		# 20% CHANCE OF GETTING IN TO TOLL LANE
-		if (freeway[potential_space_switch_row, potential_space_switch_col, self.LANE_TYPE_INDEX] == self.TOLL):
+		# 20% CHANCE OF GETTING IN TO TOLL LANE   
+		# ****CHANGING INTO TOLL LANE
+		if (freeway[potential_space_switch_row, potential_space_switch_col, self.LANE_TYPE_INDEX] == self.TOLL and \
+			freeway[potential_space_switch_row, potential_space_switch_col, self.CHANGE_L_INDEX] == True):
 			randNum = np_rand.uniform(0.0, 1.0)
 			if (randNum <= self.PERC_CHANGE_TOLL):
-				#CALL IT AS A FUNCTION
-			
-				freeway[potential_space_switch_row, potential_space_switch_col, self.CAR_INDEX] = freeway[self.row, self.col, self.CAR_INDEX]
-				freeway[self.row, self.col, self.CAR_INDEX] = None
-				self._set_location(potential_space_switch_row, potential_space_switch_col)
+				_move_to_new(freeway, potential_space_switch_row, potential_space_switch_col)
+			# else if you didn't get under the random values, the car will just stay
+			else: 
+				continue
+		if (freeway[potential_space_switch_row, potential_space_switch_col, self.LANE_TYPE_INDEX == self.REGULAR]):
+			one = 1 # TEMPEROJRARRARYRYYYY
+		
 	
 
 		# CHANGE SPEED of THE CAR 
@@ -101,7 +140,7 @@ class Car:
 	def _move_to_new(self, freeway, new_row, new_col): 
 		freeway[new_row, new_col, self.CAR_INDEX] = freeway[self.row, self.col, self.CAR_INDEX]
 		freeway[self.row, self.col, self.CAR_INDEX] = None
-		self._set_location(potential_space_switch_row, potential_space_switch_col)
+		self._set_location(new_row, new_col)
 
 	# each freeway exit has a different percent that the driver will take it
 	# each freeway exit has only once cell in which a car can exit, and once it has
