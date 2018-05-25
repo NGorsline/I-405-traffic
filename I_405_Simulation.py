@@ -74,7 +74,6 @@ def initializeRoad():
 	freeway[:, 3, 0] = TOLL
 	freeway[:, 0, 0] = NOT_USED
 	freeway[:, :, 3] = CANNOT_CHANGE_LANES
-	freeway[1232:, 3, 3] = CAN_CHANGE_LANES
 
 	for i in range(freeway.shape[0]):  # placing vehicles on the map\
 		for j in range(freeway.shape[1]):
@@ -101,6 +100,9 @@ def AddingRampsToFreeway():
 			freeway[i, 0, 0] = ON_RAMP
 			if (val < percentOnramp):
 				freeway[i, 0, 2] = car_agent.Car(i, 0, False)
+		 #setting the dotted lines on the toll lane 
+		if (i >= 0 and i <=106) or (i >= 489 and i<=630) or (i>=1054 and i<=1265):
+				freeway[i, 3, 3] = CAN_CHANGE_LANES
 
 def moveCarsHelper():
 	for i in range(freeway.shape[0] - 1, -1, -1):
@@ -146,7 +148,7 @@ def moveCars():
 		moveCarsHelper()
 		addAgent()
 		TIME_SECONDS += 1
-		visualize()
+		#visualize()
 		plt.pause(.0001)
 		
 		
