@@ -49,7 +49,7 @@ TIME_SECONDS = 0
 list = [] 
 TOL_COUNT = 0
 REG_COUNT = 0
-percentReg = .75
+percentReg = .50
 percentTol = .25
 percentOnramp = .1
 onrampCount = 0
@@ -74,6 +74,7 @@ def initializeRoad():
 	freeway[:, 3, 0] = TOLL
 	freeway[:, 0, 0] = NOT_USED
 	freeway[:, :, 3] = CANNOT_CHANGE_LANES
+	freeway[:, :, 1] = -3000
 
 	for i in range(freeway.shape[0]):  # placing vehicles on the map\
 		for j in range(freeway.shape[1]):
@@ -146,7 +147,7 @@ def moveCars():
 	while TIME_SECONDS < 200:
 		finishLine()
 		moveCarsHelper()
-		addAgent()
+		#addAgent()
 		TIME_SECONDS += 1
 		visualize()
 		plt.pause(.0001)
@@ -251,9 +252,13 @@ def test_freeway():
 #################
 initializeRoad()
 AddingRampsToFreeway()
-freeway[0, 1, 2] = car_agent.Car(0, 1,False)
 #finishLine()
 freeway[0, 1, 2] = car_agent.Car(0, 1, False)
+freeway[1, 2, 2] = car_agent.Car(1, 2, False)
+freeway[2, 1, 2] = car_agent.Car(2, 1, False)
+freeway[3, 1, 2] = car_agent.Car(3, 1, False)
+freeway[4, 1, 2] = car_agent.Car(4, 1, False)
+
 moveCars()
 #test_freeway()
 print("Cars on regular lanes: ", REG_COUNT)
