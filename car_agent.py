@@ -231,14 +231,14 @@ class Car:
 				grid[new_row, new_col, 2] = grid[self.row, self.col, 2]
 				grid[self.row, self.col, 2] = None
 				self._set_location(new_row, new_col)
+
 				if(self.speed < self.MAX_SPEED):
-					#self.speed += 1
-					pass #for now
+					self.speed += 1
 		
-				else:
-					val = self._get_next_available_location(grid, sim_time)
-					if val < self.speed:
-						self._move_to_new(grid, self.row + val, self.col)
-					else:
-						self._move_to_new(grid, self.row + self.speed, self.col)
-						self.speed += 1
+		else:
+			val = self._get_next_available_location(grid, sim_time)
+			if val < self.speed:
+				self._move_to_new(grid, self.row + val, self.col)
+			else:
+				self._move_to_new(grid, self.row + self.speed, self.col)
+				self.speed += 1

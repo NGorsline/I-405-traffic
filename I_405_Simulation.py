@@ -147,12 +147,10 @@ def moveCars():
 	while TIME_SECONDS < 200:
 		finishLine()
 		moveCarsHelper()
-		#addAgent()
+		addAgent()
 		TIME_SECONDS += 1
 		visualize()
 		plt.pause(.0001)
-		
-		
 
 #Needs more work
 def finishLine():
