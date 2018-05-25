@@ -192,7 +192,7 @@ def finishLine():
 # parts to see the cars.
 #
 # Green = Car
-# Black = Road
+# Grey = Road
 ######################################################################
 def visualize():
 	laneVis = np.zeros([freeway.shape[0], freeway.shape[1]])
@@ -209,9 +209,9 @@ def visualize():
 			#	laneVis[i][j] = 900
 			#if freeway[i][j][0] == 4:
 			#	laneVis[i][j] = 100
-			if freeway[i + 800][j][2] == None:
+			if freeway[i + 0][j][2] == None:
 				carVis[i][j] = 900
-			if type(freeway[i + 800][j][2]) is car_agent.Car:
+			if type(freeway[i + 0][j][2]) is car_agent.Car:
 				carVis[i][j] = 100
 
 	
@@ -254,8 +254,8 @@ freeway[0, 1, 2] = car_agent.Car(0, 1,False)
 freeway[0, 1, 2] = car_agent.Car(0, 1, False)
 moveCars()
 #test_freeway()
-print(REG_COUNT)
-print(TOL_COUNT)
+print("Cars on regular lanes: ", REG_COUNT)
+print("Cars on toll lanes: ", TOL_COUNT)
 #####################################################################
 #####################################################################
 
