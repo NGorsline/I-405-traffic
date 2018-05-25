@@ -68,12 +68,21 @@ class Car:
 		return car_speed
 		  
 
-	def _is_lane_out_of_bound(self, lane):
+	''' checking if the colume (lane) passed in is in bound
+	Parameter: 
+		lane - column index
+	'''
+	def _lane_in_bound(self, lane):
 		if (lane >= 0 and lane < self.NUM_LANES):
 			return True
 		return False
 
-	# checking for if
+	''' checking if the index passed in is an index I can change into
+	Parameters:
+		freeway - the grid that represents the freeway
+		row - obvious
+		col - obvious
+	'''
 	def _can_change_into(self, freeway, row, col):
 		if ((freeway[row, col, self.LANE_TYPE_INDEX] != self.NOT_USED) and \
 			(freeway[row, col, self.LANE_TYPE_INDEX] != self.ON_RAMP) and \
@@ -81,43 +90,53 @@ class Car:
 			return True
 		return False
 
-	def change_lane(self, freeway):
+	def change_lane(self, freeway, sim_time):
 		# ****************************DO SOME BOUNDARY CHECKING ***********************!!!!!!
 		# SOME HOT VARIABLES 
 		left_availability = 0
 		right_availability = 0
 		space_needed = (self.speed%10)  # space travel within a second based on currently speed
 		left_lane_col = self.col - 1
-		left_lane_in_bound = self._is_lane_out_of_bound(left_lane_col)
 		right_lane_col = self.col + 1
-		right_lane_in_bound = self._is_lane_out_of_bound(right_lane_col)
+		
+		# Checking if the right and left lanes are in bound
+		# and if they are, is it a lane that could be changed into
+		left_lane_in_bound = self._lane_in_bound(left_lane_col)  # true or false
+		valid_left_lane = left_lane_in_bound and self._can_change_into(freeway, self.row, left_lane_col)
+
+		right_lane_in_bound = self._lane_in_bound(right_lane_col)  # true or false
+		valid_right_lane = right_lane_in_bound and self._can_change_into(freeway, self.row, right_lane_col)
 
 		# check if the path to where i'll be in both lane is clear
 		# +1 because value in range is exclusive
-		# and start at 1 because i don't care to check for where i am currently at 
+		# and start at 1 because i don't care to check for the space next to me
+		# the change lane will happen diagonally
 		for i in range(1, space_needed + 1):  
-			
+			# if row + i is within the grid
 			if (self.row + i <= self.LAST_INDEX):
-				# left lane
-				if (left_lane_in_bound):
-					if (freeway[self.row + i, left_lane_col, self.CAR_INDEX] != None and \
-						self._can_change_into(freeway, self.row + i, left_lane_col)): 
+				if (valid_left_lane):
+					# if the current index being check does not have a car in it
+					if (freeway[self.row + i, left_lane_col, self.CAR_INDEX] != None): 
 						left_availability += 1
 
 				# right lane
-				if (right_lane_in_bound):
-					if (freeway[self.row + i, right_lane_col, self.CAR_INDEX] != None and \
-						self._can_change_into(freeway, self.row + i, right_lane_col)): 
+				if (valid_right_lane):
+					if (freeway[self.row + i, right_lane_col, self.CAR_INDEX] != None): 
 						right_availability += 1
 
 		# it's giving preference for right lane... like real life ;)
-		if (right_availability >= left_availability):
+		# it might not get into this if else if block at all 
+		# if that happens, the car will just keep driving moving forward.
+		if (right_availability >= left_availability and right_availability == space_needed):
 			potential_space_switch_row = self.row + space_needed
 			potential_space_switch_col = right_lane_col
-		elif (left_availability >= right_availability):
+		elif (left_availability >= right_availability and left_availability == space_needed):
 			potential_space_switch_row = self.row + space_needed
 			potential_space_switch_col = left_lane_col
-		
+		else: 
+			self.move_forward(freeway, sim_time)
+			return None # is this okay? Could I just have a return nothing
+
 		# #########################IT MIGHT NOT MAKE SENSE TO DO THIS, IT SHOULD BE A FUNCTION#############################
 		# DON'T FORGET to ooo REMOVEEEE A CAR ONCE YOU'VE MOVED IT *****************************8
 		# 20% CHANCE OF GETTING IN TO TOLL LANE   
@@ -131,8 +150,10 @@ class Car:
 			else: 
 				pass
 		if (freeway[potential_space_switch_row, potential_space_switch_col, self.LANE_TYPE_INDEX == self.REGULAR]):
-			one = 1 # TEMPEROJRARRARYRYYYY
-		# CHANGE SPEED of THE CAR 
+			self._move_to_new(freeway, potential_space_switch_row, potential_space_switch_col)
+		# CHANGE SPEED of THE CAR
+		if (self.speed < self.MAX_SPEED): 
+			self.speed += 1
 
 	'''
 		Moves this current car to a new row col, deleting it from where it is at right now
