@@ -148,7 +148,7 @@ def moveCars():
 		moveCarsHelper()
 		addAgent()
 		TIME_SECONDS += 1
-		#visualize()
+		visualize()
 		plt.pause(.0001)
 		
 		
