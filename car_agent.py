@@ -181,7 +181,7 @@ class Car:
 	the function will also cover not meeting the chance of wanting to change and instead it will just go straight
 	'''
 	def toll_car_change_l(self, freeway):
-		
+		pass
 
 
 	'''
