@@ -177,8 +177,12 @@ class Car:
 		if (self.speed < self.MAX_SPEED): 
 			self.speed += 1
 
+	'''Cars that are in the toll lane wanting to switch out of it
+	the function will also cover not meeting the chance of wanting to change and instead it will just go straight
+	'''
 	def toll_car_change_l(self, freeway):
-		pass
+		
+
 
 	'''
 		Moves this current car to a new row col, deleting it from where it is at right now
