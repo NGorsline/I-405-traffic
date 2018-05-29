@@ -2,6 +2,7 @@ import numpy.random as np_rand
 
 class Car:
 	MAX_SPEED = 6
+	MIN_SPEED = 0
 	SPEED_PER = 10.22 # mph per speed step
 	CAR_INDEX = 2  # the index which holds the car value
 	TIME_INDEX = 1
@@ -21,7 +22,11 @@ class Car:
 	ON_RAMP = 4
 	# Value that represents this lane is not used, it's not a lane at all...
 	NOT_USED = -1
-	PERC_CHANGE_TOLL = .2  # 20%
+
+	# Percent chance of a car hopping onto the toll lane
+	PERC_CHANGE_TOLL = .2
+	# Percent chance of a car speeding up next to an on-ramp cuz it sees a car next to it
+	PERC_SPEED_UP = .6
 	
 	
    # Constructor 
@@ -45,14 +50,26 @@ class Car:
 
 	def drive(self, grid, sim_time):
 		#################################### SOME PSEUDOCODE MADE by TRAN 
+		###### LET'S USE A SWITCH STATEMENT TO IMPLIMENT THIS <--------- python does not have switch cases apparently
 		# if this car is in the regular lane
 			# it might change lane by 30%
 				# within change lane function, the car might go into the toll lane by 20% if it's next to a dotted line section
-				# 70% it will go straight
-			# if this regular lane car is next to an exit, it might exit by the percentage specified at that exit??? <--- IS THIS TOO FANCY
+				# 80% it will go straight
+
+		# if this regular lane car is next to the toll lane
+			# it might try and get into it by a certain percentage?
+				
+		# if this regular lane car is NEXT TO an exit, it might exit by the percentage specified at that exit??? 
+			
+		# if this regular lane car is NEXT TO an on ramp
+			# WE CAN HAVE 2 "algorithm"
+				# 1. it wouldn't give a fuck and keep going on its marry way cuz on-ramp cars are supposed to merge onto freeway
+				# 2. call self.next_to_ramp(freeway) function
+					# it'll have a chance of speeding up or slowing down
 			# FANCY FEATURE: if this car is next to an on ramp, and a car is right "next" to it on the on ramp, 
 							# it'll either increase its speed by whatever_the_other_car_speed_is+2, or slow down by whatever_the_other_car_speed_is-1
 							# JKKK THIS IS SHITTY I DON'T WANNA DO IT
+				
 		# if this car is in the toll lane
 			# it might change out if it's at a dotted line section by 5%????? i'm pulling 5% out of my ass
 			# else i'll go straight
@@ -61,6 +78,7 @@ class Car:
 			# it will move to the end of the ramp and attempt to merge if there's an open space
 			# johnny boi wants some type of look ahead by the cars in the main road, but fuck that right?
 			# ---> shit's too fancy
+	
 		####################################	
 		# change lane   <-- TRAN
 		# if thIS car is in the toll lane and it's at a spot where it could switch out of 
@@ -97,7 +115,11 @@ class Car:
 			return True
 		return False
 
-	''' checking if the index passed in is an index I can change into
+	''' 
+	checking if the index passed in is an index I can change into
+	THIS COuld just be changed into just returning what is in the if 
+	check paraenthesis thing
+	but that's ok....
 	Parameters:
 		freeway - the grid that represents the freeway
 		row - obvious
@@ -110,6 +132,21 @@ class Car:
 			return True
 		return False
 
+	'''
+		This function takes care of :
+		 - checking if the space is in bound 
+		 - if the lane could be changed into
+		 - changing into a toll lane   <-------- it might not do this, i sorta wanna move it into another funciton
+		 - making sure time stamp is correct
+		
+		Parameter: 
+			- freeway: the 3d array
+			- sim_time: the current time but not really
+
+		Assumptions:
+			- not sure yet
+
+	'''
 	def change_lane(self, freeway, sim_time):
 		# ****************************DO SOME BOUNDARY CHECKING ***********************!!!!!!
 		# SOME HOT VARIABLES 
@@ -136,12 +173,12 @@ class Car:
 			if (self.row + i <= self.LAST_INDEX):
 				if (valid_left_lane):
 					# if the current index being check does not have a car in it
-					if (freeway[self.row + i, left_lane_col, self.CAR_INDEX] != None): 
+					if (freeway[self.row + i, left_lane_col, self.CAR_INDEX] == None): 
 						left_availability += 1
 
 				# right lane
 				if (valid_right_lane):
-					if (freeway[self.row + i, right_lane_col, self.CAR_INDEX] != None): 
+					if (freeway[self.row + i, right_lane_col, self.CAR_INDEX] == None): 
 						right_availability += 1
 
 		# it's giving preference for right lane... like real life ;)
@@ -157,41 +194,122 @@ class Car:
 			self.move_forward(freeway, sim_time)
 			return None # is this okay? Could I just have a return nothing
 
+		#***************************************8
+		index_to_check = freeway[potential_space_switch_row, potential_space_switch_col]
+		# Check if it's a regular lane, and if the time stamp is ok
+		if (index_to_check[self.LANE_TYPE_INDEX] == self.REGULAR and \
+			index_to_check[self.TIME_INDEX] <= sim_time):
+			self._move_to_new(freeway, potential_space_switch_row, potential_space_switch_col, sim_time)
+			# CHANGE SPEED of THE CAR
+			if (self.speed < self.MAX_SPEED): 
+				self.speed += 1
+				return None
+		
 		# #########################IT MIGHT NOT MAKE SENSE TO DO THIS, IT SHOULD BE A FUNCTION#############################
 		# DON'T FORGET to ooo REMOVEEEE A CAR ONCE YOU'VE MOVED IT *****************************8
 		# 20% CHANCE OF GETTING IN TO TOLL LANE   
 		# ****CHANGING INTO TOLL LANE
-		if (freeway[potential_space_switch_row, potential_space_switch_col, self.LANE_TYPE_INDEX] == self.TOLL and \
-			freeway[potential_space_switch_row, potential_space_switch_col, self.CHANGE_L_INDEX] == True):
-			randNum = np_rand.uniform(0.0, 1.0)
-			if (randNum <= self.PERC_CHANGE_TOLL):
-				self._move_to_new(freeway, potential_space_switch_row, potential_space_switch_col)
-			# else if you didn't get under the random values, the car will just stay
+		if (index_to_check[self.LANE_TYPE_INDEX] == self.TOLL and \
+			index_to_check[self.CHANGE_L_INDEX] == True and \
+			index_to_check[self.TIME_INDEX] <= sim_time):
+			rand_num = np_rand.uniform(0.0, 1.0)
+			if (rand_num <= self.PERC_CHANGE_TOLL):
+				self._move_to_new(freeway, potential_space_switch_row, potential_space_switch_col, sim_time)
+				if (self.speed < self.MAX_SPEED): 
+					self.speed += 1
+					return None
+			# else if you didn't get under the random values, the car will just stay in the lane where it's at
 			else:
 				self.move_forward(freeway, sim_time)
 		
-		# REGULAR GUYS
-		if (freeway[potential_space_switch_row, potential_space_switch_col, self.LANE_TYPE_INDEX == self.REGULAR]):
-			self._move_to_new(freeway, potential_space_switch_row, potential_space_switch_col)
-		# CHANGE SPEED of THE CAR
-		if (self.speed < self.MAX_SPEED): 
-			self.speed += 1
 
-	'''Cars that are in the toll lane wanting to switch out of it
-	the function will also cover not meeting the chance of wanting to change and instead it will just go straight
+	'''
+		Cars that are in the toll lane wanting to switch out of it
+		the function will also cover not meeting the chance of wanting to 
+		change and instead it will just go straight
 	'''
 	def toll_car_change_l(self, freeway):
 		pass
 
+	'''
+		Function for car on the freeway next to an on ramp
+		to slow down for the car on the on ramp to be able to get
+		on to the freeway
+			this function does not yet take care of situations where there'd be 
+			2+ on-ramp lanes that merges into one
+
+		Parameter:
+			freeway - the 3d array that represents the freeway and its values
+
+		Assumption:
+			The car is currently next to an on-ramp
+	'''
+	def next_to_ramp(self, freeway):
+		# ramps are to the left
+		on_ramp_col = self.col - 1
+		if (on_ramp_col >= 0):
+			# if there's a car next to it 
+			car_on_ramp = freeway[self.row, on_ramp_col, self.CAR_INDEX] 
+			if (car_on_ramp != None):
+				# if they're going at the same speed
+				if (car_on_ramp.speed == self.speed):
+					# there's a chance the car on the freeway will speed up
+					rand_num = np_rand.uniform(0.0, 1.0)
+					if (rand_num <= self.PERC_SPEED_UP): 
+						if (self.speed < self.MAX_SPEED):
+							self.speed -= 1
+					# SLOW Down
+					else:
+						if (self.speed > self.MIN_SPEED):
+							self.speed += 1
+
 
 	'''
-		Moves this current car to a new row col, deleting it from where it is at right now
-		Parameter: new_row and new_col is the new location
-	'''	
-	def _move_to_new(self, freeway, new_row, new_col): 
+		Function for cars that are at the end of the ramp
+		and want to merge onto the freeway
+		This merge will be diagonally, not horizontally
+
+		Parameter: 
+			freeway - the 3d array that represents the freeway and its values
+		
+		Assumption:
+			- the car is already at the end of the ramp
+			- there's a lane to its right
+	'''
+	def merge_onto_freeway(self, freeway, sim_time):
+		open_space_row = self.row + 1
+		open_space_col = self.col + 1
+		grid_to_check = freeway[open_space_row,open_space_col]
+		if (grid_to_check[self.CAR_INDEX] == None and  \
+			grid_to_check[self.TIME_INDEX] <= sim_time):  # ****************SHOULD THIS BE LESS THAN AND EQUAL TO
+			self._move_to_new(freeway, open_space_row, open_space_col, sim_time)
+
+	'''
+		i probably don't need this,
+		can just call nick's move_forward function
+	'''
+	def on_ramp_move_forward(self, freeway):
+		pass
+
+	'''
+		- Drop a time poop of where it is at right now
+		- deleting it from where it is at right now
+		- Move this current car to a new row col
+		- Update where it moved to time stamp
+		
+		Parameter: 
+			- the freeway
+			- new_row and new_col is the new location
+			- the current simulation time so time could be updated correctly
+	'''
+	def _move_to_new(self, freeway, new_row, new_col, sim_time): 
 		freeway[new_row, new_col, self.CAR_INDEX] = freeway[self.row, self.col, self.CAR_INDEX]
+		freeway[new_row, new_col, self.TIME_INDEX] = sim_time + 1
 		freeway[self.row, self.col, self.CAR_INDEX] = None
+		freeway[self.row, self.col, self.TIME_INDEX] = sim_time
+
 		self._set_location(new_row, new_col)
+		
 
 	# each freeway exit has a different percent that the driver will take it
 	# each freeway exit has only once cell in which a car can exit, and once it has
@@ -242,7 +360,7 @@ class Car:
 		else:
 			val = self._get_next_available_location(grid, sim_time)
 			if val < self.speed:
-				self._move_to_new(grid, self.row + val, self.col)
+				self._move_to_new(grid, self.row + val, self.col, sim_time)
 			else:
-				self._move_to_new(grid, self.row + self.speed, self.col)
+				self._move_to_new(grid, self.row + self.speed, self.col, sim_time)
 				self.speed += 1
