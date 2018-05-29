@@ -428,7 +428,11 @@ class Car:
 		for i in range(1, 7): 
 			row_to_check = self.row + i
 			grid_to_check = grid[row_to_check, self.col]
-			if row_to_check < self.LAST_INDEX and sim_time != grid_to_check[self.TIME_INDEX] and grid_to_check[self.CAR_INDEX] == None:
+			if row_to_check < self.LAST_INDEX and\
+			   sim_time != grid_to_check[self.TIME_INDEX] and\
+			   grid_to_check[self.CAR_INDEX] == None and\
+			   grid_to_check[self.LANE_TYPE_INDEX] != -1:
+
 				index_free = index_free + 1
 			else:
 				break
