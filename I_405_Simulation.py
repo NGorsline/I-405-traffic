@@ -16,10 +16,14 @@ global percentTol
 global percentOnramp
 global onrampCount
 global redLightSpeed
+global trackedSpeed
+global trackedCount
+global tollTrackedCount
 global entrance1
 global entrance2
 global entrance3
 global entrance4
+global addedYet
 
 
 #CONSTANTS
@@ -58,6 +62,10 @@ entrance1 = 845
 entrance2 = 1654
 entrance3 = 1901
 entrance4 = 2213
+trackedSpeed = 30 # every 30 seconds we add a new tracked agent
+trackedCount = 0
+tollTrackedCount = 0
+addedYet = False
 
 # Lane type, time last visited, car, can change
 s = (MILES, LANES, 4)
@@ -68,6 +76,7 @@ def initializeRoad():
 	global TOL_COUNT
 	global freeway
 	global REG_COUNT
+	global TIME_SECONDS
 
 	freeway[:, :, 2] = None # initilaize all cars to none
 	freeway[:, 1:3, 0] = REGULAR
@@ -80,10 +89,10 @@ def initializeRoad():
 		for j in range(freeway.shape[1]):
 			val = np.random.uniform(0, 1)
 			if ((j == 1 or j == 2) and val < percentReg): # placing vehicles on regular lanes
-				freeway[i][j][2] = car_agent.Car(i, j, False) 
+				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS) 
 				REG_COUNT += 1
 			elif (j == 3 and val < percentTol): # placing vehicles on toll lanes
-				freeway[i][j][2] = car_agent.Car(i, j, False)
+				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS)
 				TOL_COUNT += 1
 
 
@@ -95,12 +104,12 @@ def AddingRampsToFreeway():
 		if (i >= 774 and i <= 844) or (i >= 1547 and i <= 1653) or (i >= 1794 and i <= 1900):
 			freeway[i, 0, 0] = OFF_RAMP
 			if (val < percentOnramp):
-				freeway[i, 0, 2] = car_agent.Car(i, 0, False)
+				freeway[i, 0, 2] = car_agent.Car(i, 0, False, TIME_SECONDS)
 		 #setting the on ramps value to the freeway
 		if (i >= entrance1 and i <= 951) or (i >= entrance2 and i <= 1724) or (i >= entrance3 and i <= 2042) or (i >= entrance4 and i <= 2320):
 			freeway[i, 0, 0] = ON_RAMP
 			if (val < percentOnramp):
-				freeway[i, 0, 2] = car_agent.Car(i, 0, False)
+				freeway[i, 0, 2] = car_agent.Car(i, 0, False, TIME_SECONDS)
 		 #setting the dotted lines on the toll lane 
 		if (i >= 0 and i <=106) or (i >= 489 and i<=630) or (i>=1054 and i<=1265):
 				freeway[i, 3, 3] = CAN_CHANGE_LANES
@@ -121,41 +130,57 @@ def addAgent():
 	global entrance2
 	global entrance3
 	global entrance4
+	global tollTrackedCount
+	global trackedCount
+	global trackedSpeed
 	
 	for i in range(freeway.shape[1]):
 		val = np.random.uniform(0, 1)
+		hasSet = False
 		if ((i == 1 or i == 2) and val < percentReg and freeway[0, i, 1] != TIME_SECONDS):
-			freeway[0][i][2] = car_agent.Car(0, i, False)
+			freeway[0][i][2] = car_agent.Car(0, i, False, TIME_SECONDS)
 			REG_COUNT += 1
+			if (TIME_SECONDS % trackedSpeed == 0 and trackedCount < 30 and hasSet == False):
+				addedYet = True
+				freeway[0][i][2].tracked = True
+				trackedCount += 1
+				hasSet = True
 		elif (i == 3 and val < percentTol and freeway[0, i, 1] != TIME_SECONDS):
-			freeway[0, i, 2] = car_agent.Car(0, i, False)
+			freeway[0, i, 2] = car_agent.Car(0, i, False, TIME_SECONDS)
 			TOL_COUNT += 1
+			if (TIME_SECONDS % trackedSpeed == 0 and trackedCount < 30 and hasSet == False):
+				addedYet = True
+				freeway[0][i][2].tracked = True
+				tollTrackedCount += 1
+				hasSet = True
 
 	# adding cars to the on ramps
 	if (TIME_SECONDS % redLightSpeed == 0):
-		freeway[entrance1][0][2] = car_agent.Car(entrance1, 0, False)
-		freeway[entrance2][0][2] = car_agent.Car(entrance2, 0, False)
-		freeway[entrance3][0][2] = car_agent.Car(entrance3, 0, False)
-		freeway[entrance4][0][2] = car_agent.Car(entrance4, 0, False)
+		freeway[entrance1][0][2] = car_agent.Car(entrance1, 0, False, TIME_SECONDS)
+		freeway[entrance2][0][2] = car_agent.Car(entrance2, 0, False, TIME_SECONDS)
+		freeway[entrance3][0][2] = car_agent.Car(entrance3, 0, False, TIME_SECONDS)
+		freeway[entrance4][0][2] = car_agent.Car(entrance4, 0, False, TIME_SECONDS)
 
 def moveCars():
 	global TIME_SECONDS
-	i = 0
-	if (i == 1):
-		freeway[1][1][1] = 90
-
-	while TIME_SECONDS < 200:
+	global trackedCount
+	while len(list) != 30:
 		finishLine()
 		moveCarsHelper()
 		addAgent()
 		TIME_SECONDS += 1
-		visualize()
-		plt.pause(.0001)
+		#visualize()
+		#plt.pause(.0001)
+		#congestionVis()
+		#plt.pause(.0001)
+
 
 #Needs more work
 def finishLine():
 	global TOL_COUNT
 	global REG_COUNT
+	global tollTrackedCount
+	global trackedCount
 
 	i = 6
 	#The 6th element before the finish line (element = 2313)
@@ -171,12 +196,13 @@ def finishLine():
 				if ((car.MAX_SPEED) > i):
 					if(car.is_tracked()): 
 						#Calculating the total time, needs work
-						vehicle_total_time = car.MAX_SPEED
+						vehicle_total_time = TIME_SECONDS - car.start_time()
 						freeway[j, k, 2] = None
 						if (k == 3):
-							TOL_COUNT -= 1
+							tollTrackedCount -= 1
 						else:
-							REG_COUNT -= 1
+							list.append(vehicle_total_time)
+							trackedCount -= 1
 					else:
 						freeway[j, k, 2] = None
 						if (k == 3):
@@ -197,8 +223,8 @@ def finishLine():
 ######################################################################
 def visualize():
 	laneVis = np.zeros([freeway.shape[0], freeway.shape[1]])
-	carVis = np.zeros([100, 4])
-	for i in range(100):
+	carVis = np.zeros([10, 4])
+	for i in range(10):
 		for j in range(4):
 			#if freeway[i][j][0] == -1:
 			#	laneVis[i][j] = 800
@@ -214,12 +240,26 @@ def visualize():
 				carVis[i][j] = 900
 			if type(freeway[i + 0][j][2]) is car_agent.Car:
 				carVis[i][j] = 100
+				if freeway[i + 0, j, 2].is_tracked():
+					carVis[i][j] = 400
 
-	
 	#d = plt.pcolor(laneVis, cmap = "gist_ncar")
 	c = plt.pcolor(carVis, cmap = "Dark2")
 
+def congestionVis():
+	visList = []
+	carCount = 0
 
+	for i in range(0, freeway.shape[0], 580):
+		for j in range(i, i + 580):
+			for k in range(4):
+				if type(freeway[j, k, 2]) is car_agent.Car: 
+					carCount += 1
+		t = (carCount, carCount)
+		visList.append(t)
+		carCount = 0
+
+	c = plt.pcolor(visList, cmap = "rainbow")
 
 
 ###################################################################################
@@ -240,9 +280,9 @@ def test_freeway():
 		for j in range(small_freeway.shape[1]):
 			val = np.random.uniform(0, 1)
 			if ((j == 1 or j == 2) and val < .5): # placing vehicles on regular lanes
-				small_freeway[i][j][2] = car_agent.Car(i, j, False)  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
+				small_freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS)  # JUST A STING FOR NOW SINCE TRAN HASN'T DONE THE CLASS YET AND I DONT WANNA FUCK SHIT UP
 			elif (j == 3 and val < .25): # placing vehicles on toll lanes
-				small_freeway[i][j][2] = car_agent.Car(i, j, False)
+				small_freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS)
 
 
 #################
@@ -250,17 +290,30 @@ def test_freeway():
 #################
 initializeRoad()
 AddingRampsToFreeway()
-#finishLine()
-freeway[0, 1, 2] = car_agent.Car(0, 1, False)
-freeway[1, 2, 2] = car_agent.Car(1, 2, False)
-freeway[2, 1, 2] = car_agent.Car(2, 1, False)
-freeway[3, 1, 2] = car_agent.Car(3, 1, False)
-freeway[4, 1, 2] = car_agent.Car(4, 1, False)
+freeway[0, 1, 2] = car_agent.Car(0, 1, False, TIME_SECONDS)
+freeway[1, 2, 2] = car_agent.Car(1, 2, False, TIME_SECONDS)
+freeway[2, 1, 2] = car_agent.Car(2, 1, False, TIME_SECONDS)
+freeway[3, 1, 2] = car_agent.Car(3, 1, False, TIME_SECONDS)
+freeway[4, 1, 2] = car_agent.Car(4, 1, False, TIME_SECONDS)
 
 moveCars()
 #test_freeway()
+#######################################################
+#######################################################
+
+
+####################################################################
+# Prints!											  			   #	
+####################################################################
 print("Cars on regular lanes: ", REG_COUNT)
 print("Cars on toll lanes: ", TOL_COUNT)
+
+for i in range(len(list)):
+	print("It took tracked agent ", i + 1, " ", list[i] / 60, " minutes to finish the simulation")
+
+#print()
+#print ("Average time to finish simulation: ") # also fix the loop so that it stops when all 30 tracked agents have peaced the fuck out
+											# add a section of the visualization to see merging
 #####################################################################
 #####################################################################
 

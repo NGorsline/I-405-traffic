@@ -29,19 +29,23 @@ class Car:
 	PERC_SPEED_UP = .6
 	
 	
+	
    # Constructor 
-	def __init__(self, row, col, tracked):
+	def __init__(self, row, col, tracked, st):
 		# class variables
 		self.speed = 0  # TEMP SET TO 0 # will be set when the car is created
 		self.row = row # location that the vehicle is currently at
 		self.col = col # location that the vehicle is currently at
 		self.completed = False # If the car has left the simulation
-		self.starting_time = None  # will be set when car is spawned into the sim
+		self.starting_time = st  # will be set when car is spawned into the sim
 		self.finishing_time = None  # will be set when car passes the end of the road
 		self.tracked = tracked # boolean indicating that this car is tracked
 
 	def is_tracked(self):
 		return self.tracked
+
+	def start_time(self):
+		return self.starting_time
 
 	def _set_location(self, row, col):
 		self.row = row
