@@ -67,6 +67,15 @@ trackedCount = 0
 tollTrackedCount = 0
 addedYet = False
 
+#controls how many spaces before and after the off and on 
+#ramps are available for cars to move in and out
+OFF_RAMP_SPACES = 10
+ON_RAMP_SPACES = 10
+
+
+
+
+
 # Lane type, time last visited, car, can change
 s = (MILES, LANES, 4)
 freeway = np.zeros(s, dtype = object)
@@ -113,6 +122,27 @@ def AddingRampsToFreeway():
 		 #setting the dotted lines on the toll lane 
 		if (i >= 0 and i <=106) or (i >= 489 and i<=630) or (i>=1054 and i<=1265):
 				freeway[i, 3, 3] = CAN_CHANGE_LANES
+
+#applies the available spaces for cars to move in and out
+#before and after the off and on ramps 
+def markAvailableSpaces():
+	counter = 0
+	#flag to stop the exit spaces
+	flag = True
+	for i in range(len(freeway)-ON_RAMP_SPACES):
+		#marks the off_ramp_spaces elements of the exit ramp
+		if freeway[i, 0, 0] == 2 and flag == True:
+			freeway[i, 0, 3] = True
+			counter = counter + 1
+			if (counter == OFF_RAMP_SPACES):
+				flag = False
+				counter = 0
+		#marks the on_ramp_spaces elements of the on ramp
+		if freeway[i, 0, 0] == 4 and freeway[i+ON_RAMP_SPACES, 0, 0] != 4:
+			freeway[i, 1, 3] = True
+			if(flag == False):
+				flag = True
+
 
 def moveCarsHelper():
 	for i in range(freeway.shape[0] - 1, -1, -1):
@@ -211,7 +241,8 @@ def finishLine():
 							REG_COUNT -= 1
 		i = i-1		
 			
-				
+
+
 ######################################################################
 # Very Basic Visualization!!!
 # 
@@ -290,6 +321,8 @@ def test_freeway():
 #################
 initializeRoad()
 AddingRampsToFreeway()
+markAvailableSpaces()
+
 freeway[0, 1, 2] = car_agent.Car(0, 1, False, TIME_SECONDS)
 freeway[1, 2, 2] = car_agent.Car(1, 2, False, TIME_SECONDS)
 freeway[2, 1, 2] = car_agent.Car(2, 1, False, TIME_SECONDS)
@@ -297,6 +330,10 @@ freeway[3, 1, 2] = car_agent.Car(3, 1, False, TIME_SECONDS)
 freeway[4, 1, 2] = car_agent.Car(4, 1, False, TIME_SECONDS)
 
 moveCars()
+
+
+
+
 #test_freeway()
 #######################################################
 #######################################################
