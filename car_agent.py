@@ -60,52 +60,52 @@ class Car:
 	def drive(self, grid, sim_time):
 		#################################### SOME PSEUDOCODE MADE by TRAN 
 		###### LET'S USE A SWITCH STATEMENT TO IMPLIMENT THIS <--------- python does not have switch cases apparently
-		curr_car = grid[self.row, self.col, self.LANE_TYPE_INDEX]
-		# if this car is in the regular lane
-		if (curr_car == self.REGULAR):
-			pass
-			# it might change lane by 30%
-				# within change lane function, the car might go into the toll lane by 20% if it's next to a dotted line section
-				# 80% it will go straight
+		# curr_car = grid[self.row, self.col, self.LANE_TYPE_INDEX]
+		# # if this car is in the regular lane
+		# if (curr_car == self.REGULAR):
+		# 	pass
+		# 	# it might change lane by 30%
+		# 		# within change lane function, the car might go into the toll lane by 20% if it's next to a dotted line section
+		# 		# 80% it will go straight
 
-		# if this regular lane car is NEXT to the toll lane
-		if (curr_car == self.REGULAR and\
-			grid[self.row, self.col + 1, self.LANE_TYPE_INDEX] == self.TOLL):
-			self.change_into_toll(grid, sim_time)
-			# it might try and get into it by a certain percentage?
+		# # if this regular lane car is NEXT to the toll lane
+		# if (curr_car == self.REGULAR and\
+		# 	grid[self.row, self.col + 1, self.LANE_TYPE_INDEX] == self.TOLL):
+		# 	self.change_into_toll(grid, sim_time)
+		# 	# it might try and get into it by a certain percentage?
 				
-		# if this regular lane car is NEXT TO an exit, it might exit by the percentage specified at that exit??? 
-		if (curr_car == self.REGULAR and \
-			grid[self.row + 1, self.col - 1, self.LANE_TYPE_INDEX] == self.OFF_RAMP):
-			pass
+		# # if this regular lane car is NEXT TO an exit, it might exit by the percentage specified at that exit??? 
+		# if (curr_car == self.REGULAR and \
+		# 	grid[self.row + 1, self.col - 1, self.LANE_TYPE_INDEX] == self.OFF_RAMP):
+		# 	pass
 
-		# if this regular lane car is NEXT TO an on ramp
-		if (curr_car == self.REGULAR and grid[self.row, self.col - 1, self.LANE_TYPE_INDEX] == self.ON_RAMP):
-			pass
-			# WE CAN HAVE 2 "algorithm"
-				# 1. it wouldn't give a fuck and keep going on its marry way cuz on-ramp cars are supposed to merge onto freeway
-				# 2. call self.next_to_ramp(freeway) function
-					# it'll have a chance of speeding up or slowing down
-			# FANCY FEATURE: if this car is next to an on ramp, and a car is right "next" to it on the on ramp, 
-							# it'll either increase its speed by whatever_the_other_car_speed_is+2, or slow down by whatever_the_other_car_speed_is-1
-							# JKKK THIS IS SHITTY I DON'T WANNA DO IT
+		# # if this regular lane car is NEXT TO an on ramp
+		# if (curr_car == self.REGULAR and grid[self.row, self.col - 1, self.LANE_TYPE_INDEX] == self.ON_RAMP):
+		# 	pass
+		# 	# WE CAN HAVE 2 "algorithm"
+		# 		# 1. it wouldn't give a fuck and keep going on its marry way cuz on-ramp cars are supposed to merge onto freeway
+		# 		# 2. call self.next_to_ramp(freeway) function
+		# 			# it'll have a chance of speeding up or slowing down
+		# 	# FANCY FEATURE: if this car is next to an on ramp, and a car is right "next" to it on the on ramp, 
+		# 					# it'll either increase its speed by whatever_the_other_car_speed_is+2, or slow down by whatever_the_other_car_speed_is-1
+		# 					# JKKK THIS IS SHITTY I DON'T WANNA DO IT
 				
-		# if this car is in the toll lane
-		if (curr_car == self.TOLL):
-			pass
-			# it might change out if it's at a dotted line section by 5%????? i'm pulling 5% out of my ass
-			# else i'll go straight
-			# it might change lanes if there are more than 2 toll lanes
-			#
+		# # if this car is in the toll lane
+		# if (curr_car == self.TOLL):
+		# 	pass
+		# 	# it might change out if it's at a dotted line section by 5%????? i'm pulling 5% out of my ass
+		# 	# else i'll go straight
+		# 	# it might change lanes if there are more than 2 toll lanes
+		# 	#
 
-		# if this car is on the on-ramp
-		if (curr_car == self.ON_RAMP):
-			pass
-			# if the 
-			# it will move to the end of the ramp and attempt to merge if there's an open space
-				# by calling nick's move_forward function last
-			# johnny boi wants some type of look ahead by the cars in the main road, but fuck that right?
-			# ---> shit's too fancy
+		# # if this car is on the on-ramp
+		# if (curr_car == self.ON_RAMP):
+		# 	pass
+		# 	# if the 
+		# 	# it will move to the end of the ramp and attempt to merge if there's an open space
+		# 		# by calling nick's move_forward function last
+		# 	# johnny boi wants some type of look ahead by the cars in the main road, but fuck that right?
+		# 	# ---> shit's too fancy
 	
 		####################################	
 		# change lane   <-- TRAN
