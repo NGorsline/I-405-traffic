@@ -6,6 +6,7 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib.colors
 import time
+import math
 
 global freeway
 global TIME_SECONDS
@@ -50,7 +51,8 @@ CAN_CHANGE_LANES = True
 CANNOT_CHANGE_LANES = False 
 TIME_SECONDS = 0
 #Keeps track of the time of selected vehicles
-list = [] 
+list = []
+tollList = []
 TOL_COUNT = 0
 REG_COUNT = 0
 percentReg = .50
@@ -93,6 +95,8 @@ def initializeRoad():
 	freeway[:, 0, 0] = NOT_USED
 	freeway[:, :, 3] = CANNOT_CHANGE_LANES
 	freeway[:, :, 1] = -3000
+
+	"""If cars are not initialized all added vehicles will make it to the end of the freeway in 6.5 minutes"""
 
 	for i in range(freeway.shape[0]):  # placing vehicles on the map\
 		for j in range(freeway.shape[1]):
@@ -199,8 +203,10 @@ def moveCars():
 		moveCarsHelper()
 		addAgent()
 		TIME_SECONDS += 1
+		#plt.figure(1)
 		#visualize()
 		#plt.pause(.0001)
+		#plt.figure(2)
 		#congestionVis()
 		#plt.pause(.0001)
 
@@ -230,6 +236,7 @@ def finishLine():
 						freeway[j, k, 2] = None
 						if (k == 3):
 							tollTrackedCount -= 1
+							tollList.append(vehicle_total_time)
 						else:
 							list.append(vehicle_total_time)
 							trackedCount -= 1
@@ -254,8 +261,8 @@ def finishLine():
 ######################################################################
 def visualize():
 	laneVis = np.zeros([freeway.shape[0], freeway.shape[1]])
-	carVis = np.zeros([10, 4])
-	for i in range(10):
+	carVis = np.zeros([100, 4])
+	for i in range(100):
 		for j in range(4):
 			#if freeway[i][j][0] == -1:
 			#	laneVis[i][j] = 800
@@ -284,7 +291,7 @@ def congestionVis():
 	for i in range(0, freeway.shape[0], 580):
 		for j in range(i, i + 580):
 			for k in range(4):
-				if type(freeway[j, k, 2]) is car_agent.Car: 
+				if type(freeway[j, k, 2]) is car_agent.Car and k != 0: 
 					carCount += 1
 		t = (carCount, carCount)
 		visList.append(t)
@@ -320,8 +327,6 @@ def test_freeway():
 #Calling Methods# 
 #################
 initializeRoad()
-AddingRampsToFreeway()
-markAvailableSpaces()
 
 freeway[0, 1, 2] = car_agent.Car(0, 1, False, TIME_SECONDS)
 freeway[1, 2, 2] = car_agent.Car(1, 2, False, TIME_SECONDS)
@@ -346,11 +351,27 @@ print("Cars on regular lanes: ", REG_COUNT)
 print("Cars on toll lanes: ", TOL_COUNT)
 
 for i in range(len(list)):
-	print("It took tracked agent ", i + 1, " ", list[i] / 60, " minutes to finish the simulation")
+	print("Agent", i + 1, ": ", round(list[i] / 60, 2), " minutes")
 
-#print()
-#print ("Average time to finish simulation: ") # also fix the loop so that it stops when all 30 tracked agents have peaced the fuck out
-											# add a section of the visualization to see merging
+print()
+print("*********************************************************************************************")
+print("*********************************************************************************************")
+print()
+
+for i in range(len(tollList)):
+	print("Toll Agent", i + 1, ": ", round(tollList[i] / 60, 2), " minutes")
+
+print()
+print("*********************************************************************************************")
+print("*********************************************************************************************")
+print()
+
+array = np.array(list)
+tolArray = np.array(tollList)
+
+print ("Average time for a regular car to finish simulation: ", round(array.mean() / 60, 2), " minutes")
+print ("Average time for a tol lane car to finish simulation: ", round(tolArray.mean() / 60, 2), " minutes") 
+											
 #####################################################################
 #####################################################################
 
