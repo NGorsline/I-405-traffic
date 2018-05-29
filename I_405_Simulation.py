@@ -18,10 +18,12 @@ global onrampCount
 global redLightSpeed
 global trackedSpeed
 global trackedCount
+global tollTrackedCount
 global entrance1
 global entrance2
 global entrance3
 global entrance4
+global addedYet
 
 
 #CONSTANTS
@@ -62,6 +64,8 @@ entrance3 = 1901
 entrance4 = 2213
 trackedSpeed = 30 # every 30 seconds we add a new tracked agent
 trackedCount = 0
+tollTrackedCount = 0
+addedYet = False
 
 # Lane type, time last visited, car, can change
 s = (MILES, LANES, 4)
@@ -126,16 +130,18 @@ def addAgent():
 	global entrance2
 	global entrance3
 	global entrance4
+	global tollTrackedCount
 	global trackedCount
 	global trackedSpeed
-	hasSet = False
 	
 	for i in range(freeway.shape[1]):
 		val = np.random.uniform(0, 1)
+		hasSet = False
 		if ((i == 1 or i == 2) and val < percentReg and freeway[0, i, 1] != TIME_SECONDS):
 			freeway[0][i][2] = car_agent.Car(0, i, False, TIME_SECONDS)
 			REG_COUNT += 1
 			if (TIME_SECONDS % trackedSpeed == 0 and trackedCount < 30 and hasSet == False):
+				addedYet = True
 				freeway[0][i][2].tracked = True
 				trackedCount += 1
 				hasSet = True
@@ -143,8 +149,9 @@ def addAgent():
 			freeway[0, i, 2] = car_agent.Car(0, i, False, TIME_SECONDS)
 			TOL_COUNT += 1
 			if (TIME_SECONDS % trackedSpeed == 0 and trackedCount < 30 and hasSet == False):
+				addedYet = True
 				freeway[0][i][2].tracked = True
-				trackedCount += 1
+				tollTrackedCount += 1
 				hasSet = True
 
 	# adding cars to the on ramps
@@ -155,26 +162,25 @@ def addAgent():
 		freeway[entrance4][0][2] = car_agent.Car(entrance4, 0, False, TIME_SECONDS)
 
 def moveCars():
-
 	global TIME_SECONDS
-	i = 0
-	if (i == 1):
-		freeway[1][1][1] = 90
-
-	while TIME_SECONDS < 10000:
+	global trackedCount
+	while len(list) != 30:
 		finishLine()
 		moveCarsHelper()
 		addAgent()
 		TIME_SECONDS += 1
 		#visualize()
-		plt.pause(.0001)
+		#plt.pause(.0001)
 		#congestionVis()
 		#plt.pause(.0001)
+
 
 #Needs more work
 def finishLine():
 	global TOL_COUNT
 	global REG_COUNT
+	global tollTrackedCount
+	global trackedCount
 
 	i = 6
 	#The 6th element before the finish line (element = 2313)
@@ -191,12 +197,12 @@ def finishLine():
 					if(car.is_tracked()): 
 						#Calculating the total time, needs work
 						vehicle_total_time = TIME_SECONDS - car.start_time()
-						list.append(vehicle_total_time)
 						freeway[j, k, 2] = None
 						if (k == 3):
-							TOL_COUNT -= 1
+							tollTrackedCount -= 1
 						else:
-							REG_COUNT -= 1
+							list.append(vehicle_total_time)
+							trackedCount -= 1
 					else:
 						freeway[j, k, 2] = None
 						if (k == 3):
@@ -301,10 +307,9 @@ moveCars()
 ####################################################################
 print("Cars on regular lanes: ", REG_COUNT)
 print("Cars on toll lanes: ", TOL_COUNT)
-print(list)
 
-#for i in range(len(list)):
-#	print("It took tracked agent ", i + 1, " ", list[i], " seconds to finish the simulation")
+for i in range(len(list)):
+	print("It took tracked agent ", i + 1, " ", list[i] / 60, " minutes to finish the simulation")
 
 #print()
 #print ("Average time to finish simulation: ") # also fix the loop so that it stops when all 30 tracked agents have peaced the fuck out
