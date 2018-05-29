@@ -96,7 +96,7 @@ class Car:
 
 		# # if this regular lane car is NEXT TO an on ramp
 		# if (curr_car == self.REGULAR and grid[self.row, self.col - 1, self.LANE_TYPE_INDEX] == self.ON_RAMP):
-		# 	pass
+		# 	self.next_to_ramp(grid)
 		# 	# WE CAN HAVE 2 "algorithm"
 		# 		# 1. it wouldn't give a fuck and keep going on its marry way cuz on-ramp cars are supposed to merge onto freeway
 		# 		# 2. call self.next_to_ramp(freeway) function
@@ -122,15 +122,15 @@ class Car:
 		# 	# johnny boi wants some type of look ahead by the cars in the main road, but fuck that right?
 		# 	# ---> shit's too fancy
 	
-		# ####################################	
-		# # change lane   <-- TRAN
-		# # if thIS car is in the toll lane and it's at a spot where it could switch out of 
-		# 		# it might just do it FOR SOME CHANCE
-		# # move foward (accelerate and decelerate accordingly)
+		####################################	
+		# change lane   <-- TRAN
+		# if thIS car is in the toll lane and it's at a spot where it could switch out of 
+				# it might just do it FOR SOME CHANCE
+		# move foward (accelerate and decelerate accordingly)
 		self.move_forward(grid, sim_time)
-		# # enter toll lane if near it (by a percent)
-		# # exit if near exit (by a percent)
-		# # stay 
+		# enter toll lane if near it (by a percent)
+		# exit if near exit (by a percent)
+		# stay 
 
 
 	# TRAN'S SECTION#########################################################3
@@ -221,12 +221,14 @@ class Car:
 			if (self.row + i <= self.LAST_INDEX):
 				if (valid_left_lane):
 					# if the current index being check does not have a car in it
-					if (freeway[self.row + i, left_lane_col, self.CAR_INDEX] == None): 
+					if (freeway[self.row + i, left_lane_col, self.CAR_INDEX] == None and \
+						freeway[self.row + i, left_lane_col, self.TIME_INDEX] < sim_time): 
 						left_availability += 1
 
 				# right lane
 				if (valid_right_lane):
-					if (freeway[self.row + i, right_lane_col, self.CAR_INDEX] == None): 
+					if (freeway[self.row + i, right_lane_col, self.CAR_INDEX] == None and \
+						freeway[self.row + i, right_lane_col, self.TIME_INDEX] < sim_time): 
 						right_availability += 1
 
 		# it's giving preference for right lane... like real life ;)
@@ -244,9 +246,8 @@ class Car:
 
 		#***************************************8
 		index_to_check = freeway[potential_space_switch_row, potential_space_switch_col]
-		# Check if it's a regular lane, and if the time stamp is ok
-		if (index_to_check[self.LANE_TYPE_INDEX] == self.REGULAR and \
-			index_to_check[self.TIME_INDEX] < sim_time):
+		# Check if it's a regular lane
+		if (index_to_check[self.LANE_TYPE_INDEX] == self.REGULAR):
 			self._move_to_new(freeway, potential_space_switch_row, potential_space_switch_col, sim_time)
 			# CHANGE SPEED of THE CAR
 			if (self.speed < self.MAX_SPEED): 
@@ -281,18 +282,25 @@ class Car:
 			and out of (the dotted line, not double lined)
 	'''
 	def change_into_toll(self, freeway, sim_time):
-		pot_row = self.row + 1
+		pot_row = self.row + self.speed
 		pot_col = self.col + 1
-		rand_num = np_rand.uniform(0.0, 1.0)
-		if (freeway[self.row + 1, self.col + 1, self.CAR_INDEX] == None):
+		count = 0
+		# checking if there's enough room to get into the toll lane
+		for i in range(1, self.speed + 1): 
+			if (freeway[self.row + i, pot_col, self.CAR_INDEX] == None and \
+				freeway[self.row + i, pot_col, self.TIME_INDEX] < sim_time):
+				count += 1
+		# if yes
+		if (count == self.speed):
+			rand_num = np_rand.uniform(0.0, 1.0)
+			# by chance, it might move into it 
 			if (rand_num <= self.PERC_CHANGE_TOLL):
 				self._move_to_new(freeway, pot_row, pot_col, sim_time)
 				if (self.speed < self.MAX_SPEED): 
 						self.speed += 1
-						return None
-			# else move forward 
-			else:
-				self.move_forward(freeway, sim_time)
+						return
+		# IF EVerything above failed, just keep moving forward
+		self.move_forward(freeway, sim_time)
 
 	'''
 		Cars that are in the toll lane wanting to switch out of it
@@ -351,22 +359,22 @@ class Car:
 		# CHECKING bigger than 0 just incase of some index mess up
 		if (on_ramp_col >= 0):
 			 
-			car_on_ramp = freeway[self.row, on_ramp_col, self.CAR_INDEX] 
+			space_to_check = freeway[self.row, on_ramp_col, self.CAR_INDEX] 
 			# if there's a car next to it and it's at the same time stamp <--- PROBLEM???
-			if (car_on_ramp != None and \
+			if (space_to_check != None and \
 				freeway[self.row, on_ramp_col, self.TIME_INDEX] == freeway[self.row, self.col, self.TIME_INDEX]):
 				# if they're going at the same speed
-				if (car_on_ramp.speed == self.speed):
+				if (space_to_check.speed == self.speed):
 					# there's a chance the car on the freeway will speed up
 					rand_num = np_rand.uniform(0.0, 1.0)
 					# SPEED UP
 					if (rand_num <= self.PERC_SPEED_UP): 
 						if (self.speed < self.MAX_SPEED):
-							self.speed -= 1
+							self.speed += 1
 					# SLOW Down
 					else:
 						if (self.speed > self.MIN_SPEED):
-							self.speed += 1
+							self.speed -= 1
 
 
 	'''
