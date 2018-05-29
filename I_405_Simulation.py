@@ -161,12 +161,12 @@ def moveCars():
 	if (i == 1):
 		freeway[1][1][1] = 90
 
-	while TIME_SECONDS < 4000:
+	while TIME_SECONDS < 10000:
 		finishLine()
 		moveCarsHelper()
 		addAgent()
 		TIME_SECONDS += 1
-		visualize()
+		#visualize()
 		plt.pause(.0001)
 		#congestionVis()
 		#plt.pause(.0001)
@@ -190,7 +190,8 @@ def finishLine():
 				if ((car.MAX_SPEED) > i):
 					if(car.is_tracked()): 
 						#Calculating the total time, needs work
-						vehicle_total_time = car.MAX_SPEED
+						vehicle_total_time = TIME_SECONDS - car.start_time()
+						list.append(vehicle_total_time)
 						freeway[j, k, 2] = None
 						if (k == 3):
 							TOL_COUNT -= 1
@@ -300,7 +301,7 @@ moveCars()
 ####################################################################
 print("Cars on regular lanes: ", REG_COUNT)
 print("Cars on toll lanes: ", TOL_COUNT)
-print()
+print(list)
 
 #for i in range(len(list)):
 #	print("It took tracked agent ", i + 1, " ", list[i], " seconds to finish the simulation")

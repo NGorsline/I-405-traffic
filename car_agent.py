@@ -24,6 +24,7 @@ class Car:
 	PERC_CHANGE_TOLL = .2  # 20%
 	
 	
+	
    # Constructor 
 	def __init__(self, row, col, tracked, st):
 		# class variables
@@ -37,6 +38,9 @@ class Car:
 
 	def is_tracked(self):
 		return self.tracked
+
+	def start_time(self):
+		return self.starting_time
 
 	def _set_location(self, row, col):
 		self.row = row
