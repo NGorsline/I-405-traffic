@@ -8,6 +8,7 @@ import matplotlib.colors
 import time
 import math
 
+#global variables
 global freeway
 global TIME_SECONDS
 global TOL_COUNT
@@ -20,12 +21,11 @@ global redLightSpeed
 global trackedSpeed
 global trackedCount
 global tollTrackedCount
-global entrance1
-global entrance2
-global entrance3
-global entrance4
+global onramp1
+global onramp2
+global onramp3
+global onramp4
 global addedYet
-
 
 #CONSTANTS
 #---------
@@ -60,23 +60,28 @@ percentTol = .25
 percentOnramp = .1
 onrampCount = 0
 redLightSpeed = 8
-entrance1 = 845
-entrance2 = 1654
-entrance3 = 1901
-entrance4 = 2213
-trackedSpeed = 30 # every 30 seconds we add a new tracked agent
+# Off ramps entrance  
+offramp1 = 774
+offramp2 = 1547
+offramp3 = 1794
+# On ramps entrance
+onramp1 = 845
+onramp2 = 1654
+onramp3 = 1901
+onramp4 = 2213
+# every 30 seconds we add a new tracked agent
+trackedSpeed = 30 
 trackedCount = 0
 tollTrackedCount = 0
 addedYet = False
 
-#controls how many spaces before and after the off and on 
-#ramps are available for cars to move in and out
+#The available spaces for cars to move in and out
+#in the off and on ramps 
 OFF_RAMP_SPACES = 10
 ON_RAMP_SPACES = 10
 
-
-
-
+#removes vehicles after entering to the exit lane after so many feet 
+REMOVE_VEHICLE = 6
 
 # Lane type, time last visited, car, can change
 s = (MILES, LANES, 4)
@@ -108,18 +113,15 @@ def initializeRoad():
 				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS)
 				TOL_COUNT += 1
 
-
-# Adds the on and off ramps to the freeway
+# Adds on and off ramps to the freeway
 def AddingRampsToFreeway():
 	for i in range(len(freeway)):
 		val = np.random.uniform(0, 1)
-		#setting the off ramps value to the freeway
-		if (i >= 774 and i <= 844) or (i >= 1547 and i <= 1653) or (i >= 1794 and i <= 1900):
+		#setting the off ramps values to the freeway
+		if (i >= offramp1 and i <= 844) or (i >= offramp2 and i <= 1653) or (i >= offramp3 and i <= 1900):
 			freeway[i, 0, 0] = OFF_RAMP
-			if (val < percentOnramp):
-				freeway[i, 0, 2] = car_agent.Car(i, 0, False, TIME_SECONDS)
-		 #setting the on ramps value to the freeway
-		if (i >= entrance1 and i <= 951) or (i >= entrance2 and i <= 1724) or (i >= entrance3 and i <= 2042) or (i >= entrance4 and i <= 2320):
+		 #setting the on ramps values to the freeway
+		if (i >= onramp1 and i <= 951) or (i >= onramp2 and i <= 1724) or (i >= onramp3 and i <= 2042) or (i >= onramp4 and i <= 2320):
 			freeway[i, 0, 0] = ON_RAMP
 			if (val < percentOnramp):
 				freeway[i, 0, 2] = car_agent.Car(i, 0, False, TIME_SECONDS)
@@ -147,6 +149,17 @@ def markAvailableSpaces():
 			if(flag == False):
 				flag = True
 
+#Removes vehicles of the map once they enter to the off ramp
+def removeVehicleFromExitLane():
+		flag = True
+		for i in range(len(freeway)-REMOVE_VEHICLE):
+			if freeway[i, 0, 0] == OFF_RAMP and flag == True:
+				#Remove vehicles from the exit lane
+				for j in range(REMOVE_VEHICLE):
+					freeway[j+i, 0, 2] = None
+				flag = False
+			if freeway[i,0,0] == ON_RAMP:
+				flag = True
 
 def moveCarsHelper():
 	for i in range(freeway.shape[0] - 1, -1, -1):
@@ -160,10 +173,10 @@ def addAgent():
 	global TOL_COUNT
 	global TIME_SECONDS
 	global redLightSpeed
-	global entrance1
-	global entrance2
-	global entrance3
-	global entrance4
+	global onramp1
+	global onramp2
+	global onramp3
+	global onramp4
 	global tollTrackedCount
 	global trackedCount
 	global trackedSpeed
@@ -190,28 +203,28 @@ def addAgent():
 
 	# adding cars to the on ramps
 	if (TIME_SECONDS % redLightSpeed == 0):
-		freeway[entrance1][0][2] = car_agent.Car(entrance1, 0, False, TIME_SECONDS)
-		freeway[entrance2][0][2] = car_agent.Car(entrance2, 0, False, TIME_SECONDS)
-		freeway[entrance3][0][2] = car_agent.Car(entrance3, 0, False, TIME_SECONDS)
-		freeway[entrance4][0][2] = car_agent.Car(entrance4, 0, False, TIME_SECONDS)
+		freeway[onramp1][0][2] = car_agent.Car(onramp1, 0, False, TIME_SECONDS)
+		freeway[onramp2][0][2] = car_agent.Car(onramp2, 0, False, TIME_SECONDS)
+		freeway[onramp3][0][2] = car_agent.Car(onramp3, 0, False, TIME_SECONDS)
+		freeway[onramp4][0][2] = car_agent.Car(onramp4, 0, False, TIME_SECONDS)
 
 def moveCars():
 	global TIME_SECONDS
 	global trackedCount
 	while len(list) != 30:
+		removeVehicleFromExitLane()
 		finishLine()
 		moveCarsHelper()
 		addAgent()
 		TIME_SECONDS += 1
-		#plt.figure(1)
-		#visualize()
-		#plt.pause(.0001)
+		plt.figure(1)
+		visualize()
+		plt.pause(.0001)
 		#plt.figure(2)
 		#congestionVis()
 		#plt.pause(.0001)
 
 
-#Needs more work
 def finishLine():
 	global TOL_COUNT
 	global REG_COUNT
@@ -248,8 +261,6 @@ def finishLine():
 							REG_COUNT -= 1
 		i = i-1		
 			
-
-
 ######################################################################
 # Very Basic Visualization!!!
 # 
@@ -274,11 +285,11 @@ def visualize():
 			#	laneVis[i][j] = 900
 			#if freeway[i][j][0] == 4:
 			#	laneVis[i][j] = 100
-			if freeway[i + 0][j][2] == None:
+			if freeway[i + 800][j][2] == None:
 				carVis[i][j] = 900
-			if type(freeway[i + 0][j][2]) is car_agent.Car:
+			if type(freeway[i + 800][j][2]) is car_agent.Car:
 				carVis[i][j] = 100
-				if freeway[i + 0, j, 2].is_tracked():
+				if freeway[i + 800, j, 2].is_tracked():
 					carVis[i][j] = 400
 
 	#d = plt.pcolor(laneVis, cmap = "gist_ncar")
@@ -327,17 +338,9 @@ def test_freeway():
 #Calling Methods# 
 #################
 initializeRoad()
-
-freeway[0, 1, 2] = car_agent.Car(0, 1, False, TIME_SECONDS)
-freeway[1, 2, 2] = car_agent.Car(1, 2, False, TIME_SECONDS)
-freeway[2, 1, 2] = car_agent.Car(2, 1, False, TIME_SECONDS)
-freeway[3, 1, 2] = car_agent.Car(3, 1, False, TIME_SECONDS)
-freeway[4, 1, 2] = car_agent.Car(4, 1, False, TIME_SECONDS)
-
+AddingRampsToFreeway()
+markAvailableSpaces()
 moveCars()
-
-
-
 
 #test_freeway()
 #######################################################
