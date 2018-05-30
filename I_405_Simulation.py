@@ -514,6 +514,7 @@ def moveCars():
 		addAgent()
 		TIME_SECONDS += 1
 		print(list)
+		plt.axis('off')
 		plt.figure(1)
 		visualize()
 		plt.pause(.0001)
@@ -568,10 +569,11 @@ def finishLine():
 ######################################################################
 def visualize():
 	global numAttributes
+	endValue = 75
 
 	laneVis = np.zeros([freeway.shape[0], freeway.shape[1]])
-	carVis = np.zeros([75, freeway.shape[1]])
-	for i in range(75):
+	carVis = np.zeros([endValue, freeway.shape[1]])
+	for i in range(endValue):
 		for j in range(freeway.shape[1]):
 			#if freeway[i][j][0] == -1:
 			#	laneVis[i][j] = 800
@@ -583,11 +585,11 @@ def visualize():
 			#	laneVis[i][j] = 900
 			#if freeway[i][j][0] == 4:
 			#	laneVis[i][j] = 100
-			if freeway[i + 0][j][2] == None:
+			if freeway[endValue - (i + 0)][j][2] == None:
 				carVis[i][j] = 900
-			if type(freeway[i + 0][j][2]) is car_agent.Car:
+			if type(freeway[endValue - (i + 0)][j][2]) is car_agent.Car:
 				carVis[i][j] = 100
-				if freeway[i + 0, j, 2].is_tracked():
+				if freeway[endValue - (i + 0), j, 2].is_tracked():
 					carVis[i][j] = 400
 
 	#d = plt.pcolor(laneVis, cmap = "gist_ncar")
