@@ -33,6 +33,7 @@ global onramp4
 global addedYet
 global speed
 global onrampSpeed
+global cutoff
 
 #CONSTANTS
 #---------
@@ -86,8 +87,9 @@ numAttributes = 4
 timeStepList = []
 numLanes = 2
 numTollLanes = 1
-speed = 60
+speed = 6
 onrampSpeed = 0
+cutoff = 30
 
 #The available spaces for cars to move in and out
 #in the off and on ramps 
@@ -130,6 +132,7 @@ def initializeRoad():
 	for i in range(freeway.shape[0]):  # placing vehicles on the map\
 		for j in range(freeway.shape[1]):
 			val = np.random.uniform(0, 1)
+			speed = random.randint(0, 1)
 			if ((j == 1 or j == 2) and val < percentReg): # placing vehicles on regular lanes
 				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS, speed) 
 				REG_COUNT += 1
@@ -198,6 +201,7 @@ def initializeExtraTollLane():
 
 		# check if the spot is occupied
 		if (freeway[y, x, 2] == None):
+			speed = random.randint(0, 1)
 			freeway[y, x, 2] = car_agent.Car(y, x, False, TIME_SECONDS, speed)
 			regCount -= 1
 
@@ -206,6 +210,7 @@ def initializeExtraTollLane():
 		x = random.randint(3, 4)
 		y = random.randint(0, freeway.shape[0] - 1)
 		if (freeway[y, x, 2] == None):
+			speed = random.randint(0, 1)
 			freeway[y, x, 2] = car_agent.Car(y, x, False, TIME_SECONDS, speed)
 			tollCount -= 1
 
@@ -229,10 +234,8 @@ def makeTollRegular():
 	freeway = np.zeros(s, dtype = object)
 
 	freeway[:, :, 2] = None # initilaize all cars to none
-	freeway[:, 1:3, 0] = REGULAR
-	freeway[:, 3, 0] = TOLL
+	freeway[:, 1:4, 0] = REGULAR
 	freeway[:, 0, 0] = NOT_USED
-	freeway[:, :, 3] = CANNOT_CHANGE_LANES
 	freeway[:, :, 1] = starterTimeVal
 
 	"""If cars are not initialized all added vehicles will make it to the end of the freeway in 6.5 minutes"""
@@ -240,16 +243,15 @@ def makeTollRegular():
 	for i in range(freeway.shape[0]):  # placing vehicles on the map\
 		for j in range(freeway.shape[1]):
 			val = np.random.uniform(0, 1)
-			if ((j == 1 or j == 2) and val < percentReg): # placing vehicles on regular lanes
-				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS) 
+			if (val < percentReg): # placing vehicles on regular lanes
+				speed = random.randint(0, 1)
+				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS, speed) 
 				REG_COUNT += 1
-			elif (j == 3 and val < percentTol): # placing vehicles on toll lanes
-				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS)
-				TOL_COUNT += 1
 
 	t = (REG_COUNT, TOL_COUNT)
 	timeStepList.append(t)
 	AddingRampsToFreeway()
+	markAvailableSpaces()
 
 # Adds the on and off ramps to the freeway
 
@@ -329,7 +331,7 @@ def addAgent():
 	for i in range(freeway.shape[1]):
 		val = np.random.uniform(0, 1)
 		hasSet = False
-		if ((i == 2) and val < percentReg and freeway[0, i, 1] != TIME_SECONDS):
+		if ((i == 1) and val < percentReg and freeway[0, i, 1] != TIME_SECONDS):
 			freeway[0][i][2] = car_agent.Car(0, i, False, TIME_SECONDS, speed)
 			REG_COUNT += 1
 			regAddCount += 1
@@ -455,7 +457,9 @@ def addAgentNewLayout():
 def moveCars():
 	global TIME_SECONDS
 	global trackedCount
-	while len(list) != 30:
+	global cutoff
+
+	while len(list) != cutoff:
 		removeVehicleFromExitLane()
 		finishLine()
 		moveCarsHelper()
@@ -588,9 +592,9 @@ def test_freeway():
 		for j in range(freeway.shape[1]):
 			val = np.random.uniform(0, 1)
 			if ((j == 1 or j == 2) and val < .5): # placing vehicles on regular lanes
-				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS)  
+				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS, speed)  
 			elif (j == 3 and val < .25): # placing vehicles on toll lanes
-				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS)
+				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS, speed)
 
 def displayOutput():
 	print("Cars on regular lanes: ", REG_COUNT)
@@ -645,6 +649,7 @@ displayOutput()
 
 ## Adding one extra toll lane
 #initializeExtraTollLane()
+#makeTollRegular()
 #moveCarsChanged()
 #displayOutput()
 
