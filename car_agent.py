@@ -491,14 +491,23 @@ class Car:
 		- the chance is already met for it to want to exit
 	'''
 	def exit_freeway(self, grid):
-
-		# potential_space to exit <-- variable
-		# generate random number and compare to exit percent
-		# If randomly generated percentage is within the exit range
-		#    take the exit and remove car from simulation after it reaches the end of the ramp
-		# Else
-		#    Do not take the exit and continue to move forward if there is room
-		pass
+		pot_col = self.col -1
+		open_space = 0
+		for i in range(1, self.speed + 1):
+			if (freeway[self.row + i, pot_col, self.CAR_INDEX] == None and \
+				freeway[self.row +i, pot_col, self.TIME_INDEX] < sim_time):
+				open_space += 1
+			# it there is a car, stop incrementing open_spaces
+			else: 
+				break
+		if (freeway[self.row, self.col, self.LANE_TYPE_INDEX] == -1):
+			freeway[self.row, self.col] = None
+		elif (open_space > 0):
+			pot_row = self.row + open_space
+			self._move_to_new(freeway, pot_row, pot_col, sim_time)
+		else: 
+			self.move_forward(freeway, sim_time)
+		
 
 	# TODO:: this function should just check for next available location
 	# based on the car's current speed, don't check the whole thing??
