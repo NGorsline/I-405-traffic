@@ -39,6 +39,8 @@ global speed
 global onrampSpeed
 global cutoff
 global totalCarCount
+global time
+global toll
 
 #CONSTANTS
 #---------
@@ -69,14 +71,15 @@ list = []
 tollList = []
 TOL_COUNT = 0
 REG_COUNT = 0
-percentReg = .9
-percentTol = .25
+percentReg = .99
+percentTol = .1
 percentOnramp = .9
 onrampCount = 0
 redLightSpeed = 5
-cutoff = 30
+cutoff = 2
 totalCarCount = 0
-
+time = 5.5
+toll = 1.2
 
 # Off ramps begins  
 offramp1B = 774
@@ -141,6 +144,8 @@ freeway = np.zeros(s, dtype = object)
 def initializeRoad():
 	global TOL_COUNT
 	global freeway
+	global time
+	global toll
 	global REG_COUNT
 	global TIME_SECONDS
 	global starterTimeVal
@@ -153,6 +158,8 @@ def initializeRoad():
 	# Lane type, time last visited, car, can change
 	s = (MILES, LANES, numAttributes)
 	freeway = np.zeros(s, dtype = object)
+	time = 5.5
+	toll = 1.2
 
 	freeway[:, :, 2] = None # initilaize all cars to none
 	freeway[:, 1:3, 0] = REGULAR
@@ -185,11 +192,15 @@ def initializeEmpty():
 	global MILES
 	global LANES
 	global numLanes
+	global time
+	global toll
 
 	# Lane type, time last visited, car, can change
 	s = (MILES, LANES, numAttributes)
 	freeway = np.zeros(s, dtype = object)
 
+	time = 1
+	toll = 1
 	freeway[:, :, 2] = None # initilaize all cars to none
 	freeway[:, 1:3, 0] = REGULAR
 	freeway[:, 3, 0] = TOLL
@@ -205,12 +216,16 @@ def initializeExtraTollLane():
 	global starterTimeVal
 	global MILES
 	global LANES
+	global time
+	global toll
 	global numAttributes
 	global timeStepList
 	global numLanes
 	global numTollLanes
 	LANES = 5
 
+	toll = 1
+	time = 5
 	numLanes = 2
 	numTollLanes = 2
 	s = (MILES, LANES, numAttributes)
@@ -258,12 +273,15 @@ def makeTollRegular():
 	global REG_COUNT
 	global TIME_SECONDS
 	global starterTimeVal
+	global time
+	global toll
 	global MILES
 	global LANES
 	global numLanes
 	global timeStepList
 	numLanes = 3
 	numTollLanes = 0
+	time = 4.5
 
 	# Lane type, time last visited, car, can change
 	s = (MILES, LANES, numAttributes)
@@ -305,12 +323,16 @@ def initializeExtraLane():
 	global REG_COUNT
 	global TIME_SECONDS
 	global starterTimeVal
+	global time
+	global toll
 	global MILES
 	global LANES
 	global numLanes
 	global timeStepList
 	numLanes = 3
 	numTollLanes = 1
+	time = 4.5
+	toll = 1.2
 	LANES = 5
 
 	# Lane type, time last visited, car, can change
@@ -595,6 +617,8 @@ def finishLine():
 	global REG_COUNT
 	global tollTrackedCount
 	global trackedCount
+	global toll
+	global time
 	i = 6
 	#The 6th element before the finish line (element = 2313)
 	element = 2313
@@ -613,9 +637,9 @@ def finishLine():
 						freeway[j, k, 2] = None
 						if (k == 3):
 							tollTrackedCount -= 1
-							tollList.append(vehicle_total_time)
+							tollList.append(int(vehicle_total_time) * toll)
 						else:
-							list.append(vehicle_total_time)
+							list.append(vehicle_total_time * time)
 							trackedCount -= 1
 					else:
 						freeway[j, k, 2] = None
@@ -768,7 +792,6 @@ def moveCarsChanged():
 	global trackedCount
 	global timeStepList
 	while TIME_SECONDS + 1 < len(timeStepList):
-		print(TIME_SECONDS)
 		finishLine()
 		moveCarsHelper()
 		addAgentNewLayout()
@@ -800,8 +823,6 @@ def test_freeway():
 				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS, speed)
 
 def displayOutput():
-	print("Cars on regular lanes: ", REG_COUNT)
-	print("Cars on toll lanes: ", TOL_COUNT)
 
 	for i in range(len(list)):
 		print("Agent", i + 1, ": ", round(list[i] / 60, 2), " minutes")
@@ -810,8 +831,12 @@ def displayOutput():
 	print("*********************************************************************************************")
 	print()
 
-	for i in range(len(tollList)):
-		print("Toll Agent", i + 1, ": ", round(tollList[i] / 60, 2), " minutes")
+	if (len(tollList) == 0):
+		print("No toll agents recorded")
+	
+	else:	
+		for i in range(len(tollList)):
+			print("Toll Agent", i + 1, ": ", round(tollList[i] / 60, 2), " minutes")
 
 	print()
 	print("*********************************************************************************************")
@@ -822,7 +847,9 @@ def displayOutput():
 	tolArray = np.array(tollList)
 
 	print ("Average time for a regular car to finish simulation: ", round(array.mean() / 60, 2), " minutes")
-	print ("Average time for a tol lane car to finish simulation: ", round(tolArray.mean() / 60, 2), " minutes") 
+
+	if (len(tollList) != 0):
+		print ("Average time for a tol lane car to finish simulation: ", round(tolArray.mean() / 60, 2), " minutes") 
 
 
 #################
@@ -844,7 +871,7 @@ def displayOutput():
 #######################################################
 
 # Initializes the basic road. 
-initializeRoad()
+initializeRoad()						# Done!!
 
 
 # No cars initialized beforehand. Cars only enter from the start of the freeway
@@ -852,16 +879,17 @@ initializeRoad()
 
 moveCars()
 displayOutput()
-#TIME_SECONDS = 0
-#trackedCount = 0
-#list = []
+TIME_SECONDS = 0
+trackedCount = 0
+list = []
 
-## Adding one extra toll lane
-#initializeExtraTollLane()
-#initializeEmpty()
-#makeTollRegular()
-#moveCarsChanged()
-#displayOutput()
+## Different layouts
+#initializeExtraTollLane()				# Done!!
+initializeEmpty()						# Done!!
+#makeTollRegular()						# ERROR
+#initializeExtraLane()					# Done!!
+moveCarsChanged()
+displayOutput()
 
 
 #test_freeway()
