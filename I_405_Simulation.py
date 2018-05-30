@@ -72,7 +72,7 @@ tollList = []
 TOL_COUNT = 0
 REG_COUNT = 0
 percentReg = .99
-percentTol = .1
+percentTol = .05
 percentOnramp = .9
 onrampCount = 0
 redLightSpeed = 5
@@ -879,17 +879,17 @@ initializeRoad()						# Done!!
 
 moveCars()
 displayOutput()
-TIME_SECONDS = 0
-trackedCount = 0
-list = []
+#TIME_SECONDS = 0
+#trackedCount = 0
+#list = []
 
 ## Different layouts
 #initializeExtraTollLane()				# Done!!
-initializeEmpty()						# Done!!
+#initializeEmpty()						# Done!!
 #makeTollRegular()						# ERROR
 #initializeExtraLane()					# Done!!
-moveCarsChanged()
-displayOutput()
+#moveCarsChanged()
+#displayOutput()
 
 
 #test_freeway()
