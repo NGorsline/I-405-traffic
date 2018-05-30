@@ -45,13 +45,13 @@ class Car:
 	PERC_REG_SWITCH_LANE = .9
 	
    # Constructor 
-	def __init__(self, row, col, tracked, st):
+	def __init__(self, row, col, tracked, start_time, speed):
 		# class variables
-		self.speed = 0  # TEMP SET TO 0 # will be set when the car is created
+		self.speed = speed  # TEMP SET TO 0 # will be set when the car is created
 		self.row = row # location that the vehicle is currently at
 		self.col = col # location that the vehicle is currently at
 		self.completed = False # If the car has left the simulation
-		self.starting_time = st  # will be set when car is spawned into the sim
+		self.starting_time = start_time  # will be set when car is spawned into the sim
 		self.finishing_time = None  # will be set when car passes the end of the road
 		self.tracked = tracked # boolean indicating that this car is tracked
 
@@ -255,14 +255,14 @@ class Car:
 		elif (left_availability > right_availability and left_availability == space_needed):
 			potential_space_switch_row = self.row + space_needed
 			potential_space_switch_col = left_lane_col
-		elif(right_availability == left_availability): # else they're equal or something
-			rand_num = np_rand.uniform(0.0, 1.0)
-			if (rand_num <= .5):
-				potential_space_switch_row = self.row + space_needed
-				potential_space_switch_col = right_lane_col
-			else:
-				potential_space_switch_row = self.row + space_needed
-				potential_space_switch_col = left_lane_col
+		# elif(right_availability == left_availability): # else they're equal or something
+		# 	rand_num = np_rand.uniform(0.0, 1.0)
+		# 	if (rand_num <= .5):
+		# 		potential_space_switch_row = self.row + space_needed
+		# 		potential_space_switch_col = right_lane_col
+		# 	else:
+		# 		potential_space_switch_row = self.row + space_needed
+		# 		potential_space_switch_col = left_lane_col
 		else: 
 			self.move_forward(freeway, sim_time)
 			return None # is this okay? Could I just have a return nothing
