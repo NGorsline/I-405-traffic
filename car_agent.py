@@ -33,7 +33,7 @@ class Car:
 	NOT_USED = -1
 
 	# Percent chance of a car hopping onto the toll lane
-	PERC_CHANGE_TOLL = .5
+	PERC_CHANGE_TOLL = .01
 	# Percent chance of a car speeding up next to an on-ramp cuz it sees a car next to it
 	PERC_SPEED_UP = .6
 	# percent of a car in the toll lane switching out of it
@@ -42,7 +42,7 @@ class Car:
 	PERC_REG_SWITCH_LANE = .2
 	# percent chance of a car exiting 
 	PERC_EXIT = .1  #FIXME: I'M puLLIng this out of my ass
-	PERC_REG_SWITCH_LANE = .05
+	PERC_REG_SWITCH_LANE = .2
 	
    # Constructor 
 	def __init__(self, row, col, tracked, start_time, speed):
@@ -81,7 +81,7 @@ class Car:
 			if (grid[self.row, self.col + 1, self.LANE_TYPE_INDEX] == self.TOLL and \
 				grid[self.row, self.col + 1, self.CHANGE_L_INDEX] == True):
 				self.change_into_toll(grid, sim_time)
-			#	return None  # TIP: apparently you can do just return and that's implicitly means return None
+				return None  # TIP: apparently you can do just return and that's implicitly means return None
 			## TODO: WE CAN HAVE 2 "algorithm"
 			#	# 1. it wouldn't give a fuck and keep going on its marry way cuz on-ramp cars are supposed to merge onto freeway
 			#	# 2. call self.next_to_ramp(freeway) function
@@ -91,10 +91,10 @@ class Car:
 			#elif (grid[self.row, self.col - 1, self.LANE_TYPE_INDEX] == self.ON_RAMP):
 			#	self.next_to_ramp(grid, sim_time)  # <-- might slow down, sepeed up, or keep moving forward
 			#	return
-			## it might look into switching lane by a percentage that you can change
-			#if (rand_num <= self.PERC_REG_SWITCH_LANE):
-			#	self.change_lane(grid, sim_time)  # <-- within this function, it might switch lane or it might go forward
-			#	return
+			# it might look into switching lane by a percentage that you can change
+			if (rand_num <= self.PERC_REG_SWITCH_LANE):
+				self.change_lane(grid, sim_time)  # <-- within this function, it might switch lane or it might go forward
+				return
 			else: 
 				self.move_forward(grid, sim_time)
 				return
