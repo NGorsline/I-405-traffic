@@ -31,6 +31,8 @@ global onramp2
 global onramp3
 global onramp4
 global addedYet
+global speed
+global onrampSpeed
 
 #CONSTANTS
 #---------
@@ -84,6 +86,8 @@ numAttributes = 4
 timeStepList = []
 numLanes = 2
 numTollLanes = 1
+speed = 60
+onrampSpeed = 0
 
 #The available spaces for cars to move in and out
 #in the off and on ramps 
@@ -108,6 +112,7 @@ def initializeRoad():
 	global LANES
 	global numLanes
 	global timeStepList
+	global speed
 
 	# Lane type, time last visited, car, can change
 	s = (MILES, LANES, numAttributes)
@@ -126,15 +131,16 @@ def initializeRoad():
 		for j in range(freeway.shape[1]):
 			val = np.random.uniform(0, 1)
 			if ((j == 1 or j == 2) and val < percentReg): # placing vehicles on regular lanes
-				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS) 
+				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS, speed) 
 				REG_COUNT += 1
 			elif (j == 3 and val < percentTol): # placing vehicles on toll lanes
-				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS)
+				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS, speed)
 				TOL_COUNT += 1
 
 	t = (REG_COUNT, TOL_COUNT)
 	timeStepList.append(t)
 	AddingRampsToFreeway()
+	markAvailableSpaces()
 
 def initializeEmpty():
 	global freeway
@@ -192,7 +198,7 @@ def initializeExtraTollLane():
 
 		# check if the spot is occupied
 		if (freeway[y, x, 2] == None):
-			freeway[y, x, 2] = car_agent.Car(y, x, False, TIME_SECONDS)
+			freeway[y, x, 2] = car_agent.Car(y, x, False, TIME_SECONDS, speed)
 			regCount -= 1
 
 		# Here we initialize the toll lane
@@ -200,13 +206,50 @@ def initializeExtraTollLane():
 		x = random.randint(3, 4)
 		y = random.randint(0, freeway.shape[0] - 1)
 		if (freeway[y, x, 2] == None):
-			freeway[y, x, 2] = car_agent.Car(y, x, False, TIME_SECONDS)
+			freeway[y, x, 2] = car_agent.Car(y, x, False, TIME_SECONDS, speed)
 			tollCount -= 1
 
 
 	AddingRampsToFreeway()
 	markAvailableSpaces()
 
+def makeTollRegular():
+	global TOL_COUNT
+	global freeway
+	global REG_COUNT
+	global TIME_SECONDS
+	global starterTimeVal
+	global MILES
+	global LANES
+	global numLanes
+	global timeStepList
+
+	# Lane type, time last visited, car, can change
+	s = (MILES, LANES, numAttributes)
+	freeway = np.zeros(s, dtype = object)
+
+	freeway[:, :, 2] = None # initilaize all cars to none
+	freeway[:, 1:3, 0] = REGULAR
+	freeway[:, 3, 0] = TOLL
+	freeway[:, 0, 0] = NOT_USED
+	freeway[:, :, 3] = CANNOT_CHANGE_LANES
+	freeway[:, :, 1] = starterTimeVal
+
+	"""If cars are not initialized all added vehicles will make it to the end of the freeway in 6.5 minutes"""
+
+	for i in range(freeway.shape[0]):  # placing vehicles on the map\
+		for j in range(freeway.shape[1]):
+			val = np.random.uniform(0, 1)
+			if ((j == 1 or j == 2) and val < percentReg): # placing vehicles on regular lanes
+				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS) 
+				REG_COUNT += 1
+			elif (j == 3 and val < percentTol): # placing vehicles on toll lanes
+				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS)
+				TOL_COUNT += 1
+
+	t = (REG_COUNT, TOL_COUNT)
+	timeStepList.append(t)
+	AddingRampsToFreeway()
 
 # Adds the on and off ramps to the freeway
 
@@ -222,7 +265,7 @@ def AddingRampsToFreeway():
 		if (i >= onramp1 and i <= 951) or (i >= onramp2 and i <= 1724) or (i >= onramp3 and i <= 2042) or (i >= onramp4 and i <= 2320):
 			freeway[i, 0, 0] = ON_RAMP
 			if (val < percentOnramp):
-				freeway[i, 0, 2] = car_agent.Car(i, 0, False, TIME_SECONDS)
+				freeway[i, 0, 2] = car_agent.Car(i, 0, False, TIME_SECONDS, speed)
 				REG_COUNT += 1
 		 #setting the dotted lines on the toll lane 
 		if (i >= 0 and i <=106) or (i >= 489 and i<=630) or (i>=1054 and i<=1265):
@@ -287,7 +330,7 @@ def addAgent():
 		val = np.random.uniform(0, 1)
 		hasSet = False
 		if ((i == 2) and val < percentReg and freeway[0, i, 1] != TIME_SECONDS):
-			freeway[0][i][2] = car_agent.Car(0, i, False, TIME_SECONDS)
+			freeway[0][i][2] = car_agent.Car(0, i, False, TIME_SECONDS, speed)
 			REG_COUNT += 1
 			regAddCount += 1
 			if (TIME_SECONDS % trackedSpeed == 0 and trackedCount < 30 and hasSet == False):
@@ -295,7 +338,7 @@ def addAgent():
 				trackedCount += 1
 				hasSet = True
 		elif (i == 3 and val < percentTol and freeway[0, i, 1] != TIME_SECONDS):
-			freeway[0, i, 2] = car_agent.Car(0, i, False, TIME_SECONDS)
+			freeway[0, i, 2] = car_agent.Car(0, i, False, TIME_SECONDS, speed)
 			TOL_COUNT += 1
 			tollAddCount += 1
 			if (TIME_SECONDS % trackedSpeed == 0 and trackedCount < 30 and hasSet == False):
@@ -311,10 +354,10 @@ def addAgent():
 	if (TIME_SECONDS % redLightSpeed == 0):
 
 		# each onramp is a different onramp point on the freeway. All the stoplights are synced up in this simulation
-		freeway[onramp1][0][2] = car_agent.Car(onramp1, 0, False, TIME_SECONDS)
-		freeway[onramp2][0][2] = car_agent.Car(onramp2, 0, False, TIME_SECONDS)
-		freeway[onramp3][0][2] = car_agent.Car(onramp3, 0, False, TIME_SECONDS)
-		freeway[onramp4][0][2] = car_agent.Car(onramp4, 0, False, TIME_SECONDS)
+		freeway[onramp1][0][2] = car_agent.Car(onramp1, 0, False, TIME_SECONDS, onrampSpeed)
+		freeway[onramp2][0][2] = car_agent.Car(onramp2, 0, False, TIME_SECONDS, onrampSpeed)
+		freeway[onramp3][0][2] = car_agent.Car(onramp3, 0, False, TIME_SECONDS, onrampSpeed)
+		freeway[onramp4][0][2] = car_agent.Car(onramp4, 0, False, TIME_SECONDS, onrampSpeed)
 		REG_COUNT += 4
 
 def addAgentNewLayout():
@@ -349,7 +392,7 @@ def addAgentNewLayout():
 		backup = timeStepList[TIME_SECONDS][0] - numLanes
 		for j in range(freeway.shape[1]):
 			if freeway[0, j, 0] == 1:
-				freeway[0, j, 2] = car_agent.Car(0, j, False, TIME_SECONDS)
+				freeway[0, j, 2] = car_agent.Car(0, j, False, TIME_SECONDS, speed)
 	else:
 		hasSet = False
 		carsToAdd = timeStepList[TIME_SECONDS + 1][0]
@@ -358,7 +401,7 @@ def addAgentNewLayout():
 		while carsToAdd > 0 and loopCount != loopCountMax:
 			x = random.randint(laneStart, laneStart + numLanes - 1)
 			if freeway[0, x, 2] == None and freeway[0, x, 1] != TIME_SECONDS:
-				freeway[0, x, 2] = car_agent.Car(0, x, False, TIME_SECONDS)
+				freeway[0, x, 2] = car_agent.Car(0, x, False, TIME_SECONDS, speed)
 				carsToAdd -= 1
 				loopCount += 1
 				if (TIME_SECONDS % trackedSpeed == 0 and hasSet == False):
@@ -372,7 +415,7 @@ def addAgentNewLayout():
 			for j in range(laneStart, laneStart + numLanes):
 				if backup > 0:
 					if freeway[0, j, 2] == None and freeway[0, x, 1] != TIME_SECONDS:
-						freeway[0, j, 2] = car_agent.Car(0, j, False, TIME_SECONDS)
+						freeway[0, j, 2] = car_agent.Car(0, j, False, TIME_SECONDS, speed)
 						backup -= 1
 
 		# adding cars to the toll lanes
@@ -382,7 +425,7 @@ def addAgentNewLayout():
 		while tollCarsToAdd > 0 and loopCount != loopCountMax:
 			x = random.randint(tollStart, tollStart + numTollLanes - 1)
 			if freeway[0, x, 2] == None and freeway[0, x, 1] != TIME_SECONDS:
-				freeway[0, x, 2] = car_agent.Car(0, x, False, TIME_SECONDS)
+				freeway[0, x, 2] = car_agent.Car(0, x, False, TIME_SECONDS, speed)
 				tollCarsToAdd -= 1
 				loopCount += 1
 				if (TIME_SECONDS % trackedSpeed == 0 and hasSet == False):
@@ -396,16 +439,16 @@ def addAgentNewLayout():
 			for j in range(freeway.shape[1]):
 				if tollBackup > 0:
 					if freeway[0, j, 2] == None and freeway[0, x, 1] != TIME_SECONDS:
-						freeway[0, j, 2] = car_agent.Car(0, j, False, TIME_SECONDS)
+						freeway[0, j, 2] = car_agent.Car(0, j, False, TIME_SECONDS, speed)
 						tollBackup -= 1
 
 	
 	# adding cars to the on ramps
 	if (TIME_SECONDS % redLightSpeed == 0):
-		freeway[onramp1][0][2] = car_agent.Car(onramp1, 0, False, TIME_SECONDS)
-		freeway[onramp2][0][2] = car_agent.Car(onramp2, 0, False, TIME_SECONDS)
-		freeway[onramp3][0][2] = car_agent.Car(onramp3, 0, False, TIME_SECONDS)
-		freeway[onramp4][0][2] = car_agent.Car(onramp4, 0, False, TIME_SECONDS)
+		freeway[onramp1][0][2] = car_agent.Car(onramp1, 0, False, TIME_SECONDS, onrampSpeed)
+		freeway[onramp2][0][2] = car_agent.Car(onramp2, 0, False, TIME_SECONDS, onrampSpeed)
+		freeway[onramp3][0][2] = car_agent.Car(onramp3, 0, False, TIME_SECONDS, onrampSpeed)
+		freeway[onramp4][0][2] = car_agent.Car(onramp4, 0, False, TIME_SECONDS, onrampSpeed)
 		REG_COUNT += 4
 
 
