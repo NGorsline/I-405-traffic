@@ -228,6 +228,8 @@ def makeTollRegular():
 	global LANES
 	global numLanes
 	global timeStepList
+	numLanes = 3
+	numTollLanes = 0
 
 	# Lane type, time last visited, car, can change
 	s = (MILES, LANES, numAttributes)
@@ -240,13 +242,22 @@ def makeTollRegular():
 
 	"""If cars are not initialized all added vehicles will make it to the end of the freeway in 6.5 minutes"""
 
-	for i in range(freeway.shape[0]):  # placing vehicles on the map\
-		for j in range(freeway.shape[1]):
-			val = np.random.uniform(0, 1)
-			if (val < percentReg): # placing vehicles on regular lanes
-				speed = random.randint(0, 1)
-				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS, speed) 
-				REG_COUNT += 1
+	# getting number of regular cars that were initialized in the control simulation
+	regCount = timeStepList[0][0]
+	# getting number of toll cars
+	tollCount = timeStepList[0][1]
+	regCount += tollCount
+
+	# we pick a random spot on the freeway to initialize a car, and set it to a car
+	while regCount > 0:
+		x = random.randint(1, 3)
+		y = random.randint(0, freeway.shape[0] - 1)
+
+		# check if the spot is occupied
+		if (freeway[y, x, 2] == None):
+			speed = random.randint(0, 1)
+			freeway[y, x, 2] = car_agent.Car(y, x, False, TIME_SECONDS, speed)
+			regCount -= 1
 
 	t = (REG_COUNT, TOL_COUNT)
 	timeStepList.append(t)
@@ -254,6 +265,9 @@ def makeTollRegular():
 	markAvailableSpaces()
 
 # Adds the on and off ramps to the freeway
+
+#def initializeExtraLane():
+
 
 def AddingRampsToFreeway():
 	global REG_COUNT
