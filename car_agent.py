@@ -33,7 +33,7 @@ class Car:
 	NOT_USED = -1
 
 	# Percent chance of a car hopping onto the toll lane
-	PERC_CHANGE_TOLL = .01
+	PERC_CHANGE_TOLL = .001
 	# Percent chance of a car speeding up next to an on-ramp cuz it sees a car next to it
 	PERC_SPEED_UP = .6
 	# percent of a car in the toll lane switching out of it
@@ -41,7 +41,7 @@ class Car:
 	# percent of a car in the regular lane switching lane FIXME:: i'm pulling this number out of my ass
 	PERC_REG_SWITCH_LANE = .2
 	# percent chance of a car exiting 
-	PERC_EXIT = .1  #FIXME: I'M puLLIng this out of my ass
+	PERC_EXIT = .01  #FIXME: I'M puLLIng this out of my ass
 	PERC_REG_SWITCH_LANE = .2
 	
    # Constructor 
@@ -76,63 +76,62 @@ class Car:
 		rand_num = np_rand.uniform(0.0, 1.0)
 		# if this car is in the regular lane
 		if (curr_car == self.REGULAR):
+			# it might look into switching lane by a percentage that you can change
+			if (rand_num <= self.PERC_REG_SWITCH_LANE):
+				self.change_lane(grid, sim_time)  # <-- within this function, it might switch lane or it might go forward
+				return
 			# if it's next to a toll lane and it's a section the car could get into
 			# it might hop on in to the toll lane
-			if (grid[self.row, self.col + 1, self.LANE_TYPE_INDEX] == self.TOLL and \
+			elif (grid[self.row, self.col + 1, self.LANE_TYPE_INDEX] == self.TOLL and \
 				grid[self.row, self.col + 1, self.CHANGE_L_INDEX] == True):
 				self.change_into_toll(grid, sim_time)
-				return None  # TIP: apparently you can do just return and that's implicitly means return None
+				return
 			## TODO: WE CAN HAVE 2 "algorithm"
 			#	# 1. it wouldn't give a fuck and keep going on its marry way cuz on-ramp cars are supposed to merge onto freeway
 			#	# 2. call self.next_to_ramp(freeway) function
 			#		# it'll have a chance of speeding up or slowing down
 			## FANCY FEATURE: if this car is next to an on ramp, and a car is right "next" to it on the on ramp, 
-			## else if it's next to an on ramp
-			#elif (grid[self.row, self.col - 1, self.LANE_TYPE_INDEX] == self.ON_RAMP):
-			#	self.next_to_ramp(grid, sim_time)  # <-- might slow down, sepeed up, or keep moving forward
-			#	return
-			# it might look into switching lane by a percentage that you can change
-			if (rand_num <= self.PERC_REG_SWITCH_LANE):
-				self.change_lane(grid, sim_time)  # <-- within this function, it might switch lane or it might go forward
+			# else if it's next to an on ramp
+			elif (grid[self.row, self.col - 1, self.LANE_TYPE_INDEX] == self.ON_RAMP):
+				self.next_to_ramp(grid, sim_time)  # <-- might slow down, sepeed up, or keep moving forward
 				return
+			elif (grid[self.row, self.col-1, self.LANE_TYPE_INDEX] == self.OFF_RAMP):
+				rand_num = np_rand.uniform(0.0, 1.0)
+				if (rand_num <= self.PERC_EXIT):
+					self.exit_freeway(grid, sim_time)
+					return
+				else: 
+					self.move_forward(grid, sim_time)
+					return
 			else: 
 				self.move_forward(grid, sim_time)
 				return
 		
-		## CHECK POINT <------------------------- 
-		## # if this regular lane car is NEXT TO an exit, it might exit by the percentage specified at that exit??? 
-		## # TODO: move this into the regular car action when ready
-		## if it's next to an off ramp
-		## if (grid[self.row + 1, self.col-1, self.LANE_TYPE_INDEX] == self.OFF_RAMP):
-		##	if (rand_num <= self.PERC_EXIT):
-		##		self.exit_freeway(grid, sim_time)
-		## 	pass
-		
-		
-		## if this car is in the toll lane
-		## ASSUMPTION: only the leftest toll lane will have the true variable
-		## TODO: NOT YET implimented within toll lane switching lanes <--- FIXME: actually i might not care at all
-		#if (curr_car == self.TOLL):
-		#	# if the toll lane car is at a spot where it could leave the toll lane
-		#	if (grid[self.row, self.col, self.CHANGE_L_INDEX] == True and \
-		#		rand_num <= self.PERC_OUT_OF_TOLL):
-		#			self.toll_car_change_out(grid, sim_time)  # <--- within this function, it might go straight
-		#			return
-		#	# else if it's a spot where it can't switch out of 
-		#	else: 
-		#		self.move_forward(grid, sim_time)
-		#		return
+		# if this car is in the toll lane
+		# ASSUMPTION: only the leftest toll lane will have the true variable
+		# TODO: NOT YET implimented within toll lane switching lanes <--- FIXME: actually i might not care at all
+		if (curr_car == self.TOLL):
+			# if the toll lane car is at a spot where it could leave the toll lane
+			rand_num = np_rand.uniform(0.0, 1.0)
+			if (grid[self.row, self.col, self.CHANGE_L_INDEX] == True and \
+				rand_num <= self.PERC_OUT_OF_TOLL):
+					self.toll_car_change_out(grid, sim_time)  # <--- within this function, it might go straight
+					return
+			# else if it's a spot where it can't switch out of 
+			else: 
+				self.move_forward(grid, sim_time)
+				return
 			
-		## if this car is on the on-ramp
-		#if (curr_car == self.ON_RAMP):
-		#	# if it's at a spot where it could switch out of
-		#	if (grid[self.row, self.col + 1, self.CHANGE_L_INDEX] == True):
-		#		self.merge_onto_freeway(grid, sim_time)
-		#		return
-		#	# else it's at a spot where it can't switch out 
-		#	else:
-		#		self.move_forward(grid, sim_time)
-		#		return
+		# if this car is on the on-ramp
+		if (curr_car == self.ON_RAMP):
+			# if it's at a spot where it could switch out of
+			if (grid[self.row, self.col + 1, self.CHANGE_L_INDEX] == True):
+				self.merge_onto_freeway(grid, sim_time)
+				return
+			# else it's at a spot where it can't switch out 
+			else:
+				self.move_forward(grid, sim_time)
+				return
 			# it will move to the end of the ramp and attempt to merge if there's an open space
 				# by calling nick's move_forward function last
 	
@@ -141,7 +140,7 @@ class Car:
 		# if thIS car is in the toll lane and it's at a spot where it could switch out of 
 				# it might just do it FOR SOME CHANCE
 		# move foward (accelerate and decelerate accordingly)
-		self.move_forward(grid, sim_time)
+		# self.move_forward(grid, sim_time)
 		# enter toll lane if near it (by a percent)
 		# exit if near exit (by a percent)
 		# stay 
