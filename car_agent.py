@@ -491,7 +491,7 @@ class Car:
 		- this car is next to a spot where it can exit
 		- the chance is already met for it to want to exit
 	'''
-	def exit_freeway(self, grid):
+	def exit_freeway(self, grid, sim_time):
 		pot_col = self.col -1
 		open_space = 0
 		for i in range(1, self.speed + 1):
