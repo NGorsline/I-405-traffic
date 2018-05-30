@@ -42,7 +42,7 @@ class Car:
 	PERC_REG_SWITCH_LANE = .2
 	# percent chance of a car exiting 
 	PERC_EXIT = .1  #FIXME: I'M puLLIng this out of my ass
-	PERC_REG_SWITCH_LANE = .9
+	PERC_REG_SWITCH_LANE = .05
 	
    # Constructor 
 	def __init__(self, row, col, tracked, start_time, speed):
@@ -76,23 +76,23 @@ class Car:
 		rand_num = np_rand.uniform(0.0, 1.0)
 		# if this car is in the regular lane
 		if (curr_car == self.REGULAR):
-			# if it's next to a toll lane and it's a section the car could get into
-			# it might hop on in to the toll lane
-			if (grid[self.row, self.col + 1, self.LANE_TYPE_INDEX] == self.TOLL and \
-				grid[self.row, self.col + 1, self.CHANGE_L_INDEX] == True):
-				self.change_into_toll(grid, sim_time)
-				return None  # TIP: apparently you can do just return and that's implicitly means return None
-			# TODO: WE CAN HAVE 2 "algorithm"
-				# 1. it wouldn't give a fuck and keep going on its marry way cuz on-ramp cars are supposed to merge onto freeway
-				# 2. call self.next_to_ramp(freeway) function
-					# it'll have a chance of speeding up or slowing down
-			# FANCY FEATURE: if this car is next to an on ramp, and a car is right "next" to it on the on ramp, 
-			# else if it's next to an on ramp
-			elif (grid[self.row, self.col - 1, self.LANE_TYPE_INDEX] == self.ON_RAMP):
-				self.next_to_ramp(grid, sim_time)  # <-- might slow down, sepeed up, or keep moving forward
-				return
-			# it might look into switching lane by a percentage that you can change
-			elif (rand_num <= self.PERC_REG_SWITCH_LANE):
+			## if it's next to a toll lane and it's a section the car could get into
+			## it might hop on in to the toll lane
+			#if (grid[self.row, self.col + 1, self.LANE_TYPE_INDEX] == self.TOLL and \
+			#	grid[self.row, self.col + 1, self.CHANGE_L_INDEX] == True):
+			#	self.change_into_toll(grid, sim_time)
+			#	return None  # TIP: apparently you can do just return and that's implicitly means return None
+			## TODO: WE CAN HAVE 2 "algorithm"
+			#	# 1. it wouldn't give a fuck and keep going on its marry way cuz on-ramp cars are supposed to merge onto freeway
+			#	# 2. call self.next_to_ramp(freeway) function
+			#		# it'll have a chance of speeding up or slowing down
+			## FANCY FEATURE: if this car is next to an on ramp, and a car is right "next" to it on the on ramp, 
+			## else if it's next to an on ramp
+			#elif (grid[self.row, self.col - 1, self.LANE_TYPE_INDEX] == self.ON_RAMP):
+			#	self.next_to_ramp(grid, sim_time)  # <-- might slow down, sepeed up, or keep moving forward
+			#	return
+			## it might look into switching lane by a percentage that you can change
+			if (rand_num <= self.PERC_REG_SWITCH_LANE):
 				self.change_lane(grid, sim_time)  # <-- within this function, it might switch lane or it might go forward
 				return
 			else: 
@@ -222,7 +222,7 @@ class Car:
 		# Checking if the right and left lanes are in bound
 		# and if they are, is it a lane that could be changed into
 		left_lane_in_bound = self._lane_in_bound(left_lane_col)  # true or false
-		valid_left_lane = left_lane_in_bound and self._can_change_into(freeway, self.row, left_lane_col)
+		valid_left_lane = left_lane_in_bound and self._can_change_into(freeway, self.row + 1, left_lane_col)
 
 		right_lane_in_bound = self._lane_in_bound(right_lane_col)  # true or false
 		valid_right_lane = right_lane_in_bound and self._can_change_into(freeway, self.row, right_lane_col)
