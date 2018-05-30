@@ -33,15 +33,16 @@ class Car:
 	NOT_USED = -1
 
 	# Percent chance of a car hopping onto the toll lane
-	PERC_CHANGE_TOLL = .2
+	PERC_CHANGE_TOLL = .001
 	# Percent chance of a car speeding up next to an on-ramp cuz it sees a car next to it
 	PERC_SPEED_UP = .6
 	# percent of a car in the toll lane switching out of it
-	PERC_OUT_OF_TOLL = .05
+	PERC_OUT_OF_TOLL = .001
 	# percent of a car in the regular lane switching lane FIXME:: i'm pulling this number out of my ass
 	PERC_REG_SWITCH_LANE = .2
 	# percent chance of a car exiting 
 	PERC_EXIT = .1  #FIXME: I'M puLLIng this out of my ass
+	PERC_REG_SWITCH_LANE = .9
 	
    # Constructor 
 	def __init__(self, row, col, tracked, st):
@@ -186,7 +187,8 @@ class Car:
 	def _can_change_into(self, freeway, row, col):
 		if ((freeway[row, col, self.LANE_TYPE_INDEX] != self.NOT_USED) and \
 			(freeway[row, col, self.LANE_TYPE_INDEX] != self.ON_RAMP) and \
-			(freeway[row, col, self.LANE_TYPE_INDEX] != self.OFF_RAMP)):
+			(freeway[row, col, self.LANE_TYPE_INDEX] != self.OFF_RAMP) and \
+			freeway[row, col, self.LANE_TYPE_INDEX] != self.TOLL):
 			return True
 		return False
 
