@@ -494,19 +494,17 @@ class Car:
 		pot_col = self.col -1
 		open_space = 0
 		for i in range(1, self.speed + 1):
-			if (freeway[self.row + i, pot_col, self.CAR_INDEX] == None and \
+			if (self.row + i < self.LAST_INDEX and freeway[self.row + i, pot_col, self.CAR_INDEX] == None and \
 				freeway[self.row +i, pot_col, self.TIME_INDEX] < sim_time):
 				open_space += 1
 			# it there is a car, stop incrementing open_spaces
 			else: 
 				break
-		if (freeway[self.row, self.col, self.LANE_TYPE_INDEX] == -1):
+		if (freeway[self.row, self.col, self.LANE_TYPE_INDEX] == -1 or self.row + open_space > self.LAST_INDEX):
 			freeway[self.row, self.col, self.CAR_INDEX] = None
 		elif (open_space > 0):
 			pot_row = self.row + open_space
 			self._move_to_new(freeway, pot_row, pot_col, sim_time)
-		else: 
-			self.move_forward(freeway, sim_time)
 		
 
 	# TODO:: this function should just check for next available location
