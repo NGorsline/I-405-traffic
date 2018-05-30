@@ -1,3 +1,8 @@
+'''
+	TODO:
+	- ARE CARS WHEN SPAWNED IN GIVEN A SPEED? NOT RIGHT NOWWW WTFFFF
+	- 
+'''
 import numpy.random as np_rand
 
 class Car:
@@ -35,6 +40,8 @@ class Car:
 	PERC_OUT_OF_TOLL = .05
 	# percent of a car in the regular lane switching lane FIXME:: i'm pulling this number out of my ass
 	PERC_REG_SWITCH_LANE = .2
+	# percent chance of a car exiting 
+	PERC_EXIT = .1  #FIXME: I'M puLLIng this out of my ass
 	
    # Constructor 
 	def __init__(self, row, col, tracked, st):
@@ -88,14 +95,16 @@ class Car:
 				self.change_lane(grid, sim_time)  # <-- within this function, it might switch lane or it might go forward
 				return
 			else: 
-				self.move_forward(grid, sim_time)  
+				self.move_forward(grid, sim_time)
 				return
 		
 		# CHECK POINT <------------------------- 
 		# # if this regular lane car is NEXT TO an exit, it might exit by the percentage specified at that exit??? 
 		# # TODO: move this into the regular car action when ready
-		# if (curr_car == self.REGULAR and \
-		# 	grid[self.row + 1, self.col - 1, self.LANE_TYPE_INDEX] == self.OFF_RAMP):
+		# if it's next to an off ramp
+		# if (grid[self.row + 1, self.col-1, self.LANE_TYPE_INDEX] == self.OFF_RAMP):
+		#	if (rand_num <= self.PERC_EXIT):
+		#		self.exit_freeway(grid, sim_time)
 		# 	pass
 		
 		
@@ -238,12 +247,20 @@ class Car:
 		# it's giving preference for right lane... like real life ;)
 		# it might not get into this if elif if block at all 
 		# if that happens, the car will just keep driving moving forward.
-		if (right_availability >= left_availability and right_availability == space_needed):
+		if (right_availability > left_availability and right_availability == space_needed):
 			potential_space_switch_row = self.row + space_needed
 			potential_space_switch_col = right_lane_col
-		elif (left_availability >= right_availability and left_availability == space_needed):
+		elif (left_availability > right_availability and left_availability == space_needed):
 			potential_space_switch_row = self.row + space_needed
 			potential_space_switch_col = left_lane_col
+		elif(right_availability == left_availability): # else they're equal or something
+			rand_num = np_rand.uniform(0.0, 1.0)
+			if (rand_num <= .5):
+				potential_space_switch_row = self.row + space_needed
+				potential_space_switch_col = right_lane_col
+			else:
+				potential_space_switch_row = self.row + space_needed
+				potential_space_switch_col = left_lane_col
 		else: 
 			self.move_forward(freeway, sim_time)
 			return None # is this okay? Could I just have a return nothing
@@ -465,8 +482,13 @@ class Car:
 	#     entered the exit ramp, it can not change its mind (will be forced to exit)
 	# -- 30% for Bothell-Mill Creek (maybe exit 26)
 	# -- 10% for all other
-
+	'''
+		Assumption:
+		- this car is next to a spot where it can exit
+		- the chance is already met for it to want to exit
+	'''
 	def exit_freeway(self, grid):
+
 		# potential_space to exit <-- variable
 		# generate random number and compare to exit percent
 		# If randomly generated percentage is within the exit range
@@ -483,6 +505,7 @@ class Car:
 		for i in range(1, 7): 
 			row_to_check = self.row + i
 			grid_to_check = grid[row_to_check, self.col]
+			# FIXME: shouldn't the checking time be less than, not NOT EQUAL to
 			if row_to_check < self.LAST_INDEX and\
 			   sim_time != grid_to_check[self.TIME_INDEX] and\
 			   grid_to_check[self.CAR_INDEX] == None and\
@@ -503,7 +526,7 @@ class Car:
 			   and not do the jump to the end of a car in a single second
 	'''
 	def move_forward(self, grid, sim_time):
-
+		# TODO: NO NEED???
 		grid[self.row, self.col, self.TIME_INDEX] = sim_time
 
 		# Create helper function to check if the spaces in front will be clear at the speed traveled
@@ -523,7 +546,7 @@ class Car:
 		
 		else:
 			val = self._get_next_available_location(grid, sim_time)
-			if val < self.speed:
+			if val < self.speed:  #FIXME: WHAT THE FUCK IS THIS
 				self._move_to_new(grid, self.row + val, self.col, sim_time)
 			else:
 				self._move_to_new(grid, self.row + self.speed, self.col, sim_time)
