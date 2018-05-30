@@ -248,13 +248,15 @@ class Car:
 
 		# it's giving preference for right lane... like real life ;)
 		# it might not get into this if elif if block at all 
-		# if that happens, the car will just keep driving moving forward.
-		if (right_availability > left_availability and right_availability == space_needed):
-			potential_space_switch_row = self.row + space_needed
-			potential_space_switch_col = right_lane_col
-		elif (left_availability > right_availability and left_availability == space_needed):
+		# if that happens, the car will just keep driving moving forward
+		# TODO: 3+ REGULAR LANE CHANGING
+		
+		if (left_availability == space_needed):
 			potential_space_switch_row = self.row + space_needed
 			potential_space_switch_col = left_lane_col
+		elif (right_availability == space_needed):
+			potential_space_switch_row = self.row + space_needed
+			potential_space_switch_col = right_lane_col
 		# elif(right_availability == left_availability): # else they're equal or something
 		# 	rand_num = np_rand.uniform(0.0, 1.0)
 		# 	if (rand_num <= .5):
