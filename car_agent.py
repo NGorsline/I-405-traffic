@@ -33,7 +33,7 @@ class Car:
 	NOT_USED = -1
 
 	# Percent chance of a car hopping onto the toll lane
-	PERC_CHANGE_TOLL = .001
+	PERC_CHANGE_TOLL = 0
 	# Percent chance of a car speeding up next to an on-ramp cuz it sees a car next to it
 	PERC_SPEED_UP = .6
 	# percent of a car in the toll lane switching out of it
