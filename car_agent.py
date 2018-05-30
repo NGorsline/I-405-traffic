@@ -548,7 +548,7 @@ class Car:
 		
 		else:
 			val = self._get_next_available_location(grid, sim_time)
-			if val < self.speed:  #FIXME: WHAT THE FUCK IS THIS
+			if val < self.speed: 
 				self._move_to_new(grid, self.row + val, self.col, sim_time)
 			else:
 				self._move_to_new(grid, self.row + self.speed, self.col, sim_time)
