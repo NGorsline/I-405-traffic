@@ -501,7 +501,7 @@ class Car:
 			else: 
 				break
 		if (freeway[self.row, self.col, self.LANE_TYPE_INDEX] == -1):
-			freeway[self.row, self.col] = None
+			freeway[self.row, self.col, self.CAR_INDEX] = None
 		elif (open_space > 0):
 			pot_row = self.row + open_space
 			self._move_to_new(freeway, pot_row, pot_col, sim_time)
