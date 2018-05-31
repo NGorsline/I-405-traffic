@@ -2,7 +2,6 @@ import numpy as np
 import car_agent
 np.set_printoptions(threshold=np.inf)
 import math
-#import tkinter
 import matplotlib.pyplot as plt
 import matplotlib.colors
 import time
@@ -76,7 +75,7 @@ percentTol = .05
 percentOnramp = .9
 onrampCount = 0
 redLightSpeed = 5
-cutoff = 10
+cutoff = 15
 totalCarCount = 0
 time = 4.5
 toll = 1.7
@@ -549,18 +548,15 @@ def addAgentNewLayout():
 			while carsToAdd > 0 and loopCount != loopCountMax:
 				x = random.randint(laneStart, laneStart + numLanes - 1)
 				loopCount += 1
-				#print("before if")
 				if freeway[0, x, 2] == None and freeway[0, x, 1] != TIME_SECONDS:
 					freeway[0, x, 2] = car_agent.Car(0, x, False, TIME_SECONDS, speed)
 					carsToAdd -= 1
-					#print("before second if")
 					if (TIME_SECONDS % trackedSpeed == 0 and hasSet == False):
 						freeway[0][x][2].tracked = True
 						trackedCount += 1
 						hasSet = True
 			backup += carsToAdd
 
-			#print("If backup is needed")
 			# adding backed up cars into the simulation
 			if backup > 0:
 				for j in range(laneStart, laneStart + numLanes):
@@ -569,7 +565,6 @@ def addAgentNewLayout():
 							freeway[0, j, 2] = car_agent.Car(0, j, False, TIME_SECONDS, speed)
 							backup -= 1
 			
-			#print("Adding to toll lane")
 			# adding cars to the toll lanes
 			tollCarsToAdd = timeStepList[TIME_SECONDS + 1][1]
 			loopCount = 0
@@ -586,7 +581,6 @@ def addAgentNewLayout():
 						hasSet = True
 			tollBackup += tollCarsToAdd
 
-			#print("Adding backed up toll cars into the simulation")
 			# adding backed up toll cars into the simulation
 			if tollBackup > 0:
 				for j in range(freeway.shape[1]):
@@ -595,7 +589,6 @@ def addAgentNewLayout():
 							freeway[0, j, 2] = car_agent.Car(0, j, False, TIME_SECONDS, speed)
 							tollBackup -= 1
 
-	#print("ramps")
 	# adding cars to the on ramps
 	if (TIME_SECONDS % redLightSpeed == 0):
 		freeway[onramp1][0][2] = car_agent.Car(onramp1, 0, False, TIME_SECONDS, onrampSpeed)
@@ -615,13 +608,10 @@ def moveCars():
 		moveCarsHelper()
 		addAgent()
 		TIME_SECONDS += 1
-		#plt.axis('off')
-		#plt.figure(1)
-		#visualize()
-		#plt.pause(.0001)
-		#plt.figure(2)
-		#congestionVis()
-		#plt.pause(.0001)
+		plt.axis('off')
+		plt.figure(1)
+		visualize()
+		plt.pause(.001)
 
 #Removes vehicles from the map once they reach the finish line 
 def finishLine():
@@ -662,13 +652,11 @@ def finishLine():
 		i = i-1		
 			
 ######################################################################
-# Very Basic Visualization!!!
-# 
-# Uncomment laneVis parts to see the lanes, uncomment carVis
-# parts to see the cars.
+# Visualization!!!
 #
 # Green = Car
 # Grey = Road
+# Pink = Tracked Car
 ######################################################################
 def visualize():
 	global numAttributes
@@ -678,16 +666,6 @@ def visualize():
 	carVis = np.zeros([endValue, freeway.shape[1]])
 	for i in range(endValue):
 		for j in range(freeway.shape[1]):
-			#if freeway[i][j][0] == -1:
-			#	laneVis[i][j] = 800
-			#if freeway[i][j][0] == 1:
-			#	laneVis[i][j] = 300
-			#if freeway[i][j][0] == 3:
-			#	laneVis[i][j] = 600
-			#if freeway[i][j][0] == 2:
-			#	laneVis[i][j] = 900
-			#if freeway[i][j][0] == 4:
-			#	laneVis[i][j] = 100
 			if freeway[endValue - (i + 0)][j][2] == None:
 				carVis[i][j] = 900
 			if type(freeway[endValue - (i + 0)][j][2]) is car_agent.Car:
@@ -695,22 +673,8 @@ def visualize():
 				if freeway[endValue - (i + 0), j, 2].is_tracked():
 					carVis[i][j] = 400
 
-	#d = plt.pcolor(laneVis, cmap = "gist_ncar")
 	c = plt.pcolor(carVis, cmap = "Dark2")
 
-def congestionVis():
-	visList = []
-	carCount = 0
-
-	for i in range(0, freeway.shape[0], 580):
-		for j in range(i, i + 580):
-			for k in range(4):
-				if type(freeway[j, k, 2]) is car_agent.Car and k != 0: 
-					carCount += 1
-		t = (carCount, carCount)
-		visList.append(t)
-		carCount = 0
-	c = plt.pcolor(visList, cmap = "rainbow")
 
 #moves the freeway on-ramp fowards or backwards by specified number of indexes.
 #To use this method, pass in the on-ramp variable(ON_RAMP_ONE, ON_RAMP_TWO, ON_RAMP_THREE),
@@ -805,16 +769,14 @@ def moveCarsChanged():
 	global timeStepList
 	while TIME_SECONDS + 1 < len(timeStepList):
 		finishLine()
-		#print("did finish line")
 		moveCarsHelper()
-		#print("moveHelper done")
 		addAgentNewLayout()
-		#print("done with addAgent")
 		TIME_SECONDS += 1
-		#print(TIME_SECONDS)
-		#plt.figure(1)
-		#visualize()
-		#plt.pause(.0001)
+		plt.axis('off')
+		print(TIME_SECONDS)
+		plt.figure(1)
+		visualize()
+		plt.pause(.0001)
 
 ###################################################################################
 ######## created a smaller freeway of size 20 by 4 for testing purposes###########
@@ -868,67 +830,23 @@ def displayOutput():
 		print ("Average time for a toll lane car to finish simulation: ", round(tolArray.mean() / 60, 2), " minutes") 
 
 
-#################
-#Calling Methods# 
-#################
-
-#initializeRoad()
-#AddingRampsToFreeway()
-#markAvailableSpaces()
-#moveFreewayOnRamp(ON_RAMP_ONE,"F",400)
-#moveCars()
-#initializeRoad()
-#AddingRampsToFreeway()
-#test_freeway()
-#moveCars()
-
-#test_freeway()
-#######################################################
-#######################################################
-
 # Initializes the basic road. 
-initializeRoad()						# Done!!
-
-
-# No cars initialized beforehand. Cars only enter from the start of the freeway
-#initializeEmpty()
-
+initializeRoad()					
 moveCars()
 displayOutput()
 TIME_SECONDS = 0
 trackedCount = 0
 list = []
 
-## Different layouts
-initializeExtraTollLane()				# Done!!
-#initializeEmpty()						# Done!!
-#makeTollRegular()						# ERROR
-#initializeExtraLane()					# Done!!
+
+####################################################
+# Different layouts - Uncomment the freeway layout
+# that you would like to use
+####################################################
+initializeExtraTollLane()				
+#initializeEmpty()						
+#makeTollRegular()						
+#initializeExtraLane()					
 moveCarsChanged()
 displayOutput()
-
-
-#test_freeway()
-#######################################################
-#######################################################
-
-
-
-#top = tkinter.Tk()
-#top.config(width=400, height=700)
-#C = tkinter.Canvas(top,bg="dark green", height=700, width=400)
-#C.create_rectangle(50, 0, 350, 700, fill="grey", outline = 'blue')
-#C.create_line(125,0,125,700)
-#C.create_line(200,0,200,700)
-#C.create_line(273,0,273,700)
-#C.create_line(277,200,277,700)
-
-#C.pack()
-#top.mainloop()
-
-
-
-#top = tkinter.Tk()
-#top.mainloop()
-
-#print(freeway)
+########################################
