@@ -78,8 +78,8 @@ onrampCount = 0
 redLightSpeed = 5
 cutoff = 10
 totalCarCount = 0
-time = 5.5
-toll = 1.2
+time = 4.5
+toll = 1.7
 
 # Off ramps begins  
 offramp1B = 774
@@ -160,8 +160,8 @@ def initializeRoad():
 	freeway = np.zeros(s, dtype = object)
 	#time = 5.5
 	#toll = 1.2
-	time = 1
-	toll = 1
+	#time = 
+	#toll = 1
 
 	freeway[:, :, 2] = None # initilaize all cars to none
 	freeway[:, 1:3, 0] = REGULAR
@@ -227,7 +227,7 @@ def initializeExtraTollLane():
 	LANES = 5
 
 	toll = 1
-	time = 5
+	time = 4.5
 	numLanes = 2
 	numTollLanes = 2
 	s = (MILES, LANES, numAttributes)
@@ -283,7 +283,7 @@ def makeTollRegular():
 	global timeStepList
 	numLanes = 3
 	numTollLanes = 0
-	time = 4.5
+	time = 3.9
 
 	# Lane type, time last visited, car, can change
 	s = (MILES, LANES, numAttributes)
@@ -333,8 +333,8 @@ def initializeExtraLane():
 	global timeStepList
 	numLanes = 3
 	numTollLanes = 1
-	time = 4.5
-	toll = 1.2
+	time = 3.6
+	#toll = 1.2
 	LANES = 5
 
 	# Lane type, time last visited, car, can change
@@ -521,11 +521,11 @@ def addAgentNewLayout():
 		loopCount = 0
 		loopCountMax = numLanes * 20 # if loop count Max is reached TIME_SECONDS must be off
 		while carsToAdd > 0 and loopCount != loopCountMax:
+			loopCount += 1
 			x = random.randint(laneStart, laneStart + numLanes - 1)
 			if freeway[0, x, 2] == None and freeway[0, x, 1] != TIME_SECONDS:
 				freeway[0, x, 2] = car_agent.Car(0, x, False, TIME_SECONDS, speed)
 				carsToAdd -= 1
-				loopCount += 1
 				if (TIME_SECONDS % trackedSpeed == 0 and hasSet == False):
 					freeway[0][x][2].tracked = True
 					trackedCount += 1
@@ -615,10 +615,10 @@ def moveCars():
 		moveCarsHelper()
 		addAgent()
 		TIME_SECONDS += 1
-		plt.axis('off')
-		plt.figure(1)
-		visualize()
-		plt.pause(.0001)
+		#plt.axis('off')
+		#plt.figure(1)
+		#visualize()
+		#plt.pause(.0001)
 		#plt.figure(2)
 		#congestionVis()
 		#plt.pause(.0001)
@@ -865,7 +865,7 @@ def displayOutput():
 	print ("Average time for a regular car to finish simulation: ", round(array.mean() / 60, 2), " minutes")
 
 	if (len(tollList) != 0):
-		print ("Average time for a tol lane car to finish simulation: ", round(tolArray.mean() / 60, 2), " minutes") 
+		print ("Average time for a toll lane car to finish simulation: ", round(tolArray.mean() / 60, 2), " minutes") 
 
 
 #################
@@ -900,10 +900,10 @@ trackedCount = 0
 list = []
 
 ## Different layouts
-#initializeExtraTollLane()				# Done!!
+initializeExtraTollLane()				# Done!!
 #initializeEmpty()						# Done!!
 #makeTollRegular()						# ERROR
-initializeExtraLane()					# Done!!
+#initializeExtraLane()					# Done!!
 moveCarsChanged()
 displayOutput()
 

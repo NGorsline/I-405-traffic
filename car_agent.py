@@ -8,6 +8,7 @@ import numpy.random as np_rand
 class Car:
 	MAX_SPEED = 6
 	MIN_SPEED = 0
+	MAX_LANE = 4
 	SPEED_PER = 10.22 # mph per speed step
 	# the index which holds the car value in the freeway grid
 	CAR_INDEX = 2 
@@ -33,7 +34,7 @@ class Car:
 	NOT_USED = -1
 
 	# Percent chance of a car hopping onto the toll lane
-	PERC_CHANGE_TOLL = 0
+	PERC_CHANGE_TOLL = .001
 	# Percent chance of a car speeding up next to an on-ramp cuz it sees a car next to it
 	PERC_SPEED_UP = .6
 	# percent of a car in the toll lane switching out of it
@@ -82,7 +83,7 @@ class Car:
 				return
 			# if it's next to a toll lane and it's a section the car could get into
 			# it might hop on in to the toll lane
-			elif (grid[self.row, self.col + 1, self.LANE_TYPE_INDEX] == self.TOLL and \
+			elif (self.col + 1 < self.MAX_LANE and grid[self.row, self.col + 1, self.LANE_TYPE_INDEX] == self.TOLL and \
 				grid[self.row, self.col + 1, self.CHANGE_L_INDEX] == True):
 				self.change_into_toll(grid, sim_time)
 				return
@@ -537,6 +538,7 @@ class Car:
 			   and not do the jump to the end of a car in a single second
 	'''
 	def move_forward(self, grid, sim_time):
+		# TODO: NO NEED???
 		grid[self.row, self.col, self.TIME_INDEX] = sim_time
 
 		# Create helper function to check if the spaces in front will be clear at the speed traveled
@@ -555,44 +557,9 @@ class Car:
 					self.speed += 1
 		
 		else:
-			
 			val = self._get_next_available_location(grid, sim_time)
-			# #if it's open space, check double that space
-			#if (val == self.speed and val > 0):
-			#	count = 0
-			#	# check forward
-			#	for i in range(self.speed + 1, self.speed * 2 + 1):
-			#		if (self.row + i < self.LAST_INDEX):
-			#			if (grid[self.row + i, self.col, self.CAR_INDEX] != None or \
-			#				grid[self.row + i, self.col, self.TIME_INDEX] < sim_time):
-			#				break
-			#			count += 1
-			#	# there's a car when you look double the space
-			#	if (count < self.speed * 2):
-			#		if (self.speed > 0):
-			#			self.speed = int(self.speed / 2)
-			#			self._move_to_new(grid, self.row + self.speed, self.col, sim_time)
-			#	else:
-			#		self._move_to_new(grid, self.row + self.speed, self.col, sim_time)
-			#		if (self.speed < self.MAX_SPEED):
-			#			self.speed += 1
-			if val < self.speed:
-				if (grid[self.row, self.col, self.LANE_TYPE_INDEX] == self.TOLL):
-					self._move_to_new(grid, self.row + val, self.col, sim_time)
-				else:
-					rand_num = np_rand.uniform(0.0, 1.0)
-					if (rand_num < .5 and val > 1):
-						self._move_to_new(grid, self.row + val - 1, self.col, sim_time)
-					else:
-						self._move_to_new(grid, self.row + val, self.col, sim_time)
+			if val < self.speed: 
+				self._move_to_new(grid, self.row + val, self.col, sim_time)
 			else:
 				self._move_to_new(grid, self.row + self.speed, self.col, sim_time)
-				if (self.speed < self.MAX_SPEED and grid[self.row, self.col, self.LANE_TYPE_INDEX] != self.TOLL):
-					rand_num = np_rand.uniform(0.0, 1.0)
-					if (rand_num < .3):
-						self.speed += 1
-					elif (rand_num > .3 and rand_num < .6 and self.speed > 0):
-						self.speed -= 1
-				else:
-					if(self.speed < self.MAX_SPEED and grid[self.row, self.col, self.LANE_TYPE_INDEX] == self.TOLL):
-						self.speed += 1
+				self.speed += 1
