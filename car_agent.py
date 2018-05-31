@@ -20,7 +20,7 @@ class Car:
 
 	# numbers for initializing the grid
 	NUM_LANES = 4 
-	LAST_INDEX = 2320-1
+	LAST_INDEX = 2320
 
 	#Represents regular lanes in the freeway
 	REGULAR = 1
@@ -42,7 +42,7 @@ class Car:
 	PERC_REG_SWITCH_LANE = .2
 	# percent chance of a car exiting 
 	PERC_EXIT = .01  #FIXME: I'M puLLIng this out of my ass
-	PERC_REG_SWITCH_LANE = .2
+	PERC_REG_SWITCH_LANE = .05
 	
    # Constructor 
 	def __init__(self, row, col, tracked, start_time, speed):
@@ -232,7 +232,7 @@ class Car:
 		# the change lane will happen diagonally
 		for i in range(1, space_needed + 1):  
 			# if row + i is within the grid
-			if (self.row + i <= self.LAST_INDEX):
+			if (self.row + i < self.LAST_INDEX):
 				if (valid_left_lane):
 					# if the current index being check does not have a car in it
 					if (freeway[self.row + i, left_lane_col, self.CAR_INDEX] == None and \
@@ -471,13 +471,14 @@ class Car:
 			- new_row and new_col is the new location
 			- the current simulation time so time could be updated correctly
 	'''
-	def _move_to_new(self, freeway, new_row, new_col, sim_time): 
-		freeway[new_row, new_col, self.CAR_INDEX] = freeway[self.row, self.col, self.CAR_INDEX]
-		freeway[new_row, new_col, self.TIME_INDEX] = sim_time + 1
-		freeway[self.row, self.col, self.CAR_INDEX] = None
-		freeway[self.row, self.col, self.TIME_INDEX] = sim_time
+	def _move_to_new(self, freeway, new_row, new_col, sim_time):
+		if (new_row < self.LAST_INDEX):
+			freeway[new_row, new_col, self.CAR_INDEX] = freeway[self.row, self.col, self.CAR_INDEX]
+			freeway[new_row, new_col, self.TIME_INDEX] = sim_time + 1
+			freeway[self.row, self.col, self.CAR_INDEX] = None
+			freeway[self.row, self.col, self.TIME_INDEX] = sim_time
 
-		self._set_location(new_row, new_col)
+			self._set_location(new_row, new_col)
 		
 	# VERY BIG #TODO:
 	# each freeway exit has a different percent that the driver will take it
@@ -536,7 +537,6 @@ class Car:
 			   and not do the jump to the end of a car in a single second
 	'''
 	def move_forward(self, grid, sim_time):
-		# TODO: NO NEED???
 		grid[self.row, self.col, self.TIME_INDEX] = sim_time
 
 		# Create helper function to check if the spaces in front will be clear at the speed traveled
@@ -555,9 +555,44 @@ class Car:
 					self.speed += 1
 		
 		else:
+			
 			val = self._get_next_available_location(grid, sim_time)
-			if val < self.speed: 
-				self._move_to_new(grid, self.row + val, self.col, sim_time)
+			# #if it's open space, check double that space
+			#if (val == self.speed and val > 0):
+			#	count = 0
+			#	# check forward
+			#	for i in range(self.speed + 1, self.speed * 2 + 1):
+			#		if (self.row + i < self.LAST_INDEX):
+			#			if (grid[self.row + i, self.col, self.CAR_INDEX] != None or \
+			#				grid[self.row + i, self.col, self.TIME_INDEX] < sim_time):
+			#				break
+			#			count += 1
+			#	# there's a car when you look double the space
+			#	if (count < self.speed * 2):
+			#		if (self.speed > 0):
+			#			self.speed = int(self.speed / 2)
+			#			self._move_to_new(grid, self.row + self.speed, self.col, sim_time)
+			#	else:
+			#		self._move_to_new(grid, self.row + self.speed, self.col, sim_time)
+			#		if (self.speed < self.MAX_SPEED):
+			#			self.speed += 1
+			if val < self.speed:
+				if (grid[self.row, self.col, self.LANE_TYPE_INDEX] == self.TOLL):
+					self._move_to_new(grid, self.row + val, self.col, sim_time)
+				else:
+					rand_num = np_rand.uniform(0.0, 1.0)
+					if (rand_num < .5 and val > 1):
+						self._move_to_new(grid, self.row + val - 1, self.col, sim_time)
+					else:
+						self._move_to_new(grid, self.row + val, self.col, sim_time)
 			else:
 				self._move_to_new(grid, self.row + self.speed, self.col, sim_time)
-				self.speed += 1
+				if (self.speed < self.MAX_SPEED and grid[self.row, self.col, self.LANE_TYPE_INDEX] != self.TOLL):
+					rand_num = np_rand.uniform(0.0, 1.0)
+					if (rand_num < .3):
+						self.speed += 1
+					elif (rand_num > .3 and rand_num < .6 and self.speed > 0):
+						self.speed -= 1
+				else:
+					if(self.speed < self.MAX_SPEED and grid[self.row, self.col, self.LANE_TYPE_INDEX] == self.TOLL):
+						self.speed += 1
