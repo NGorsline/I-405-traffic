@@ -7,7 +7,10 @@ import matplotlib.colors
 import time
 import random
 
-#global variables
+#############################
+# Defining global constants
+#############################
+
 global freeway
 global TIME_SECONDS
 global TOL_COUNT
@@ -38,11 +41,15 @@ global speed
 global onrampSpeed
 global cutoff
 global totalCarCount
-global time
+global timec
 global toll
+global simName
+global showVis
 
-#CONSTANTS
-#---------
+#############################
+# Defining Constants
+#############################
+
 #Represents regular lanes in the freeway
 REGULAR = 1
 #Represents the off ramp on the freeway
@@ -65,6 +72,7 @@ CANNOT_CHANGE_LANES = False
 TIME_SECONDS = 0
 #Keeps track of the time of selected vehicles
 list = []
+layoutChoice = 0
 
 #list of total time for vehicles on the toll lane
 tollList = []
@@ -75,10 +83,11 @@ percentTol = .05
 percentOnramp = .9
 onrampCount = 0
 redLightSpeed = 5
-cutoff = 15
+cutoff = 10
 totalCarCount = 0
-time = 4.5
+timec = 4.5
 toll = 1.7
+simName = "Control Simulation"
 
 # Off ramps begins  
 offramp1B = 774
@@ -121,6 +130,7 @@ numLanes = 2
 numTollLanes = 1
 speed = 6
 onrampSpeed = 0
+showVis = 'n'
 
 #The available spaces for cars to move in and out
 #in the off and on ramps 
@@ -135,15 +145,22 @@ ON_RAMP_ONE = onramp1B
 ON_RAMP_TWO = onramp2B
 ON_RAMP_THREE = onramp3B
 
+# Creating the two dimensional array of arrays for the freeway 
 # Lane type, time last visited, car, can change
 s = (MILES, LANES, 4)
 freeway = np.zeros(s, dtype = object)
 
-#The freeway is represented as a 2D array
+###############################################################################
+# Initialize Road
+#
+# Creates the control version of the freeway. Steps through each element of the
+# freeway and has a random chance of placing a car in that spot. Also places
+# constants to define regular lanes, toll lanes, and on and off ramps.
+###############################################################################
 def initializeRoad():
 	global TOL_COUNT
 	global freeway
-	global time
+	global timec
 	global toll
 	global REG_COUNT
 	global TIME_SECONDS
@@ -153,14 +170,11 @@ def initializeRoad():
 	global numLanes
 	global timeStepList
 	global speed
+	global simName
 
 	# Lane type, time last visited, car, can change
 	s = (MILES, LANES, numAttributes)
 	freeway = np.zeros(s, dtype = object)
-	#time = 5.5
-	#toll = 1.2
-	#time = 
-	#toll = 1
 
 	freeway[:, :, 2] = None # initilaize all cars to none
 	freeway[:, 1:3, 0] = REGULAR
@@ -169,7 +183,7 @@ def initializeRoad():
 	freeway[:, :, 3] = CANNOT_CHANGE_LANES
 	freeway[:, :, 1] = starterTimeVal
 
-	"""If cars are not initialized all added vehicles will make it to the end of the freeway in 6.5 minutes"""
+	#If cars are not initialized all added vehicles will make it to the end of the freeway in 6.5 minutes
 
 	for i in range(freeway.shape[0]):  # placing vehicles on the map\
 		for j in range(freeway.shape[1]):
@@ -187,20 +201,30 @@ def initializeRoad():
 	AddingRampsToFreeway()
 	markAvailableSpaces()
 
+
+###############################################################################
+# Initialize Empty
+#
+# Initializes a variation of the basic freeway where no cars are on the
+# freeway at the start of the simulation
+###############################################################################
 def initializeEmpty():
 	global freeway
 	global starterTimeVal
 	global MILES
 	global LANES
 	global numLanes
-	global time
+	global timec
 	global toll
+	global simName
+
+	simName = "Empty Freeway"
 
 	# Lane type, time last visited, car, can change
 	s = (MILES, LANES, numAttributes)
 	freeway = np.zeros(s, dtype = object)
 
-	time = 1
+	timec = 1
 	toll = 1
 	freeway[:, :, 2] = None # initilaize all cars to none
 	freeway[:, 1:3, 0] = REGULAR
@@ -209,6 +233,13 @@ def initializeEmpty():
 	freeway[:, :, 3] = CANNOT_CHANGE_LANES
 	freeway[:, :, 1] = starterTimeVal
 
+###############################################################################
+# Initialize Extra Toll Lane
+#
+# Initializes a variation of the basic freeway where a second toll lane is
+# added. Uses data from how many cars were placed on the control freeway to
+# decide how many cars it needs to place.
+###############################################################################
 def initializeExtraTollLane():
 	global TOL_COUNT
 	global freeway
@@ -217,16 +248,18 @@ def initializeExtraTollLane():
 	global starterTimeVal
 	global MILES
 	global LANES
-	global time
+	global timec
 	global toll
 	global numAttributes
 	global timeStepList
 	global numLanes
 	global numTollLanes
+	global simName
 	LANES = 5
+	simName = "Extra Toll Lane"
 
 	toll = 1
-	time = 4.5
+	timec = 4.5
 	numLanes = 2
 	numTollLanes = 2
 	s = (MILES, LANES, numAttributes)
@@ -268,21 +301,30 @@ def initializeExtraTollLane():
 	AddingRampsToFreeway()
 	markAvailableSpaces()
 
+###############################################################################
+# Make Toll Regular
+#
+# Initializes a variation of the basic freeway where the toll lane is changed
+# to a regular lane. Uses data from how many cars were placed on the control 
+# freeway to decide how many cars it needs to place.
+###############################################################################
 def makeTollRegular():
 	global TOL_COUNT
 	global freeway
 	global REG_COUNT
 	global TIME_SECONDS
 	global starterTimeVal
-	global time
+	global timec
 	global toll
 	global MILES
 	global LANES
 	global numLanes
 	global timeStepList
+	global simName
 	numLanes = 3
 	numTollLanes = 0
-	time = 3.9
+	timec = 3.9
+	simName = "Make Toll Lane into Actual Lane"
 
 	# Lane type, time last visited, car, can change
 	s = (MILES, LANES, numAttributes)
@@ -294,7 +336,6 @@ def makeTollRegular():
 	freeway[:, :, 3] = CANNOT_CHANGE_LANES
 	freeway[:, :, 1] = starterTimeVal
 
-	"""If cars are not initialized all added vehicles will make it to the end of the freeway in 6.5 minutes"""
 
 	# getting number of regular cars that were initialized in the control simulation
 	regCount = timeStepList[0][0]
@@ -316,23 +357,32 @@ def makeTollRegular():
 	AddingRampsToFreeway()
 	markAvailableSpaces()
 
-# Adds the on and off ramps to the freeway
 
+###############################################################################
+# Initialize Extra lane
+#
+# Initializes a variation of the basic freeway where there is an additional
+# lane. Uses data from how many cars were placed on the control freeway to
+# decide how many cars it needs to place.
+###############################################################################
 def initializeExtraLane():
 	global TOL_COUNT
 	global freeway
 	global REG_COUNT
 	global TIME_SECONDS
 	global starterTimeVal
-	global time
+	global timec
 	global toll
 	global MILES
 	global LANES
 	global numLanes
 	global timeStepList
+	global simName
+
+	simName = "Initialize Extra Lane"
 	numLanes = 3
 	numTollLanes = 1
-	time = 3.6
+	timec = 3.6
 	#toll = 1.2
 	LANES = 5
 
@@ -346,8 +396,6 @@ def initializeExtraLane():
 	freeway[:, 0, 0] = NOT_USED
 	freeway[:, :, 3] = CANNOT_CHANGE_LANES
 	freeway[:, :, 1] = starterTimeVal
-
-	"""If cars are not initialized all added vehicles will make it to the end of the freeway in 6.5 minutes"""
 
 	# getting number of regular cars that were initialized in the control simulation
 	regCount = timeStepList[0][0]
@@ -375,6 +423,12 @@ def initializeExtraLane():
 	AddingRampsToFreeway()
 	markAvailableSpaces()
 
+###############################################################################
+# Adding Ramps to Freeway
+#
+# Sets the on ramps and exits on the freeway based off of the values in the
+# onramp and offramp constants.
+###############################################################################
 def AddingRampsToFreeway():
 	global REG_COUNT
 
@@ -393,8 +447,12 @@ def AddingRampsToFreeway():
 		if (i >= 0 and i <=106) or (i >= 489 and i<=630) or (i>=1054 and i<=1265):
 				freeway[i, 3, 3] = CAN_CHANGE_LANES
 
-#applies the available spaces for cars to move in and out
-#before and after the off and on ramps 
+###############################################################################
+# Mark Availiable Spaces
+# 
+# Sets a flag to true on specific locations if a car is able to move in and out
+# of that designated lane. Used before and after the exits and on ramps
+############################################################################### 
 def markAvailableSpaces():
 	counter = 0
 	#flag to stop the exit spaces
@@ -413,7 +471,11 @@ def markAvailableSpaces():
 			if(flag == False):
 				flag = True
 
-#Removes vehicles of the map once they enter the off-ramp
+###############################################################################
+# Remove Vehicle from Exit Lane
+#
+# Function deletes an agent from the freeway once it goes on an exit lane
+###############################################################################
 def removeVehicleFromExitLane():
 		flag = True
 		for i in range(len(freeway)-REMOVE_VEHICLE):
@@ -425,6 +487,12 @@ def removeVehicleFromExitLane():
 			if freeway[i,0,0] == ON_RAMP:
 				flag = True
 
+###############################################################################
+# Move Cars Helper
+#
+# Helper function for move cars. Steps through each element of the highway and
+# calls the drive function on each car.
+###############################################################################
 def moveCarsHelper():
 	global totalCarCount
 	totalCarCount = 0
@@ -436,6 +504,14 @@ def moveCarsHelper():
 				freeway[i, j, 2].drive(freeway, TIME_SECONDS)
 
 
+###############################################################################
+# Add Agent
+#
+# Helper function for move cars. Add agent function used only on the control
+# freeway. Function will step horozontally across the freeway and have a random
+# chance of placing an agent down in that cell. Also adds agents to the
+# on ramp.
+###############################################################################
 def addAgent():
 	global REG_COUNT
 	global TOL_COUNT
@@ -485,6 +561,15 @@ def addAgent():
 		freeway[onramp3][0][2] = car_agent.Car(onramp3, 0, False, TIME_SECONDS, onrampSpeed)
 		REG_COUNT += 3
 
+###############################################################################
+# Add Agent New Layout
+#
+# An add agent function for the variations of the base model. This function
+# Uses data from the base simulation to decide how many vehicles to place on a
+# specific type of lane at any given time. It also saves vehicles that it
+# cannot place as a backup. This function also adds vehicles on the on ramp at
+# specific time intervals.
+###############################################################################
 def addAgentNewLayout():
 	global REG_COUNT
 	global TOL_COUNT
@@ -511,10 +596,9 @@ def addAgentNewLayout():
 			laneStart = i
 		elif freeway[0, i, 0] == 3 and tollStart == -1:
 			tollStart = i
-	#print("found when the lanes start")
+
 
 	if tollStart == -1:
-		#print("in no toll lane section")
 		hasSet = False
 		carsToAdd = timeStepList[TIME_SECONDS + 1][0] + timeStepList[TIME_SECONDS + 1][0]
 		loopCount = 0
@@ -539,7 +623,6 @@ def addAgentNewLayout():
 					freeway[0, j, 2] = car_agent.Car(0, j, False, TIME_SECONDS, speed)
 		
 		else:
-			#print("if too many cars done")
 			hasSet = False
 			carsToAdd = timeStepList[TIME_SECONDS + 1][0]
 			loopCount = 0
@@ -596,11 +679,18 @@ def addAgentNewLayout():
 		freeway[onramp3][0][2] = car_agent.Car(onramp3, 0, False, TIME_SECONDS, onrampSpeed)
 		REG_COUNT += 3
 
-
+###############################################################################
+# Move Cars
+#
+# Used to move the cars of the first simulation (control verion). Contains the
+# helper functions removeVehicleFromExitLane(), finishLine(), moveCarsHelper(),
+# and add agent.
+###############################################################################
 def moveCars():
 	global TIME_SECONDS
 	global trackedCount
 	global totalCarCount
+	global showVis
 
 	while len(list) != cutoff:
 		removeVehicleFromExitLane()
@@ -608,19 +698,27 @@ def moveCars():
 		moveCarsHelper()
 		addAgent()
 		TIME_SECONDS += 1
-		plt.axis('off')
-		plt.figure(1)
-		visualize()
-		plt.pause(.001)
+		print('\rTime steps simulated (seconds): ',TIME_SECONDS, sep=' ', end='', flush=True)
 
-#Removes vehicles from the map once they reach the finish line 
+		if showVis == 'y':
+			plt.axis('off')
+			plt.figure(1)
+			visualize()
+			plt.pause(.001)
+
+###############################################################################
+# Finish Line
+#
+# Deletes car objects from the map once they reach the end. If the car was a
+# tracked agent, it saves the timestep data in list()
+###############################################################################
 def finishLine():
 	global TOL_COUNT
 	global REG_COUNT
 	global tollTrackedCount
 	global trackedCount
 	global toll
-	global time
+	global timec
 	i = 6
 	#The 6th element before the finish line (element = 2313)
 	element = 2313
@@ -641,7 +739,7 @@ def finishLine():
 							tollTrackedCount -= 1
 							tollList.append(int(vehicle_total_time) * toll)
 						else:
-							list.append(vehicle_total_time * time)
+							list.append(vehicle_total_time * timec)
 							trackedCount -= 1
 					else:
 						freeway[j, k, 2] = None
@@ -651,13 +749,14 @@ def finishLine():
 							REG_COUNT -= 1
 		i = i-1		
 			
-######################################################################
-# Visualization!!!
+###############################################################################
+# Visualize
 #
+# Plots the locations of each vehicle on the map.
 # Green = Car
 # Grey = Road
 # Pink = Tracked Car
-######################################################################
+###############################################################################
 def visualize():
 	global numAttributes
 	endValue = 2319
@@ -676,10 +775,15 @@ def visualize():
 	c = plt.pcolor(carVis, cmap = "Dark2")
 
 
-#moves the freeway on-ramp fowards or backwards by specified number of indexes.
-#To use this method, pass in the on-ramp variable(ON_RAMP_ONE, ON_RAMP_TWO, ON_RAMP_THREE),
-#The direction("F") for moving the on-ramp fowards or ("B") for moving it backwards,
-#And the amount of indexes you would like to move the ramp by.
+##############################################################################
+# MoveFreewayOnRamp
+#
+# Moves the freeway on ramp forward or backwards by specified number of
+# indexes. To use this method, pass in the on ramp variable:
+# (ON_RAMP_ONE, ON_RAMP_TWO, ON_RAMP_THREE), the direction("F") for moving the
+# on ramp forwards or ("B") for moving it backwards, and the amount of indexes
+# you would like to move the ramp by.
+###############################################################################
 def moveFreewayOnRamp(onRamp,direction,indexes):
 	#stores the available backwards spaces for ramp one
 	ramp1RearMovement = offramp1B - 1;
@@ -763,24 +867,40 @@ def moveFreewayOnRamp(onRamp,direction,indexes):
 				for k in range(onramp3E-indexes,onramp3E+indexes):
 					freeway[k, 0, 0] = NOT_USED
 
+
+####################################################
+# moveCarsChanged
+#
+# move cars function for the different layouts of
+# the freeway. Calls finishLine, moveCarsHelper, 
+# and addAgentNewLayout 
+####################################################
 def moveCarsChanged():
 	global TIME_SECONDS
 	global trackedCount
 	global timeStepList
+	global showVis
+
 	while TIME_SECONDS + 1 < len(timeStepList):
 		finishLine()
 		moveCarsHelper()
 		addAgentNewLayout()
 		TIME_SECONDS += 1
-		plt.axis('off')
-		print(TIME_SECONDS)
-		plt.figure(1)
-		visualize()
-		plt.pause(.0001)
+		print('\rTime steps simulated (seconds): ',TIME_SECONDS, sep=' ', end='', flush=True)
+		
+		if showVis == 'y':
+			plt.axis('off')
+			print(TIME_SECONDS)
+			plt.figure(1)
+			visualize()
+			plt.pause(.0001)
 
-###################################################################################
-######## created a smaller freeway of size 20 by 4 for testing purposes###########
-###################################################################################
+####################################################
+# Small Freeway
+#
+# Created a small, 20 x 4 freeway for testing
+# purposes
+####################################################
 global small_freeway
 a = (20, 4, 4)
 small_freeway = np.zeros(a, dtype = object)
@@ -800,37 +920,48 @@ def test_freeway():
 			elif (j == 3 and val < .25): # placing vehicles on toll lanes
 				freeway[i][j][2] = car_agent.Car(i, j, False, TIME_SECONDS, speed)
 
-def displayOutput():
 
+####################################################
+# DisplayOutput
+#
+# Outputs the times of the tracked agents that made
+# it to the end of the simulation. Also prints out
+# a list of tracked agents that were on the toll
+# lane. Averages and displays.
+####################################################
+def displayOutput():
+	print()
+	print("Data for: ", simName)
 	for i in range(len(list)):
 		print("Agent", i + 1, ": ", round(list[i] / 60, 2), " minutes")
-	print()
-	print("*********************************************************************************************")
-	print("*********************************************************************************************")
-	print()
 
 	if (len(tollList) == 0):
 		print("No toll agents recorded")
-	
 	else:	
 		for i in range(len(tollList)):
 			print("Toll Agent", i + 1, ": ", round(tollList[i] / 60, 2), " minutes")
-
-	print()
-	print("*********************************************************************************************")
-	print("*********************************************************************************************")
 	print()
 
 	array = np.array(list)
 	tolArray = np.array(tollList)
 
-	print ("Average time for a regular car to finish simulation: ", round(array.mean() / 60, 2), " minutes")
+	print ("Average time for a regular car to finish", simName, ": ", round(array.mean() / 60, 2), " minutes")
 
 	if (len(tollList) != 0):
-		print ("Average time for a toll lane car to finish simulation: ", round(tolArray.mean() / 60, 2), " minutes") 
+		print ("Average time for a toll lane car to finish", simName, ": ", round(tolArray.mean() / 60, 2), " minutes") 
+	print()
+	print()
 
 
-# Initializes the basic road. 
+
+####################################################
+# Runs the simulation on the default layout and then
+# clears the data
+####################################################
+showVis = input("Would you like to see visualizations for this simulation? (y/n)")
+print()
+print('Running the control simulation...', sep=' ', end='', flush=True)
+print()
 initializeRoad()					
 moveCars()
 displayOutput()
@@ -839,14 +970,25 @@ trackedCount = 0
 list = []
 
 
-####################################################
-# Different layouts - Uncomment the freeway layout
-# that you would like to use
-####################################################
-initializeExtraTollLane()				
-#initializeEmpty()						
-#makeTollRegular()						
-#initializeExtraLane()					
-moveCarsChanged()
-displayOutput()
-########################################
+
+while layoutChoice != -1:
+	print("Which Freeway Layout Would You Like To Run?")
+	print("0 = Extra toll lane")
+	print("1 = Empty freeway")
+	print("2 = Make toll lane a regular lane")
+	print("3 = Extra regular lane")
+	print("-1 = Quit the simulation")
+	print()
+	layoutChoice = input()
+	layoutChoice = int(layoutChoice)
+	print()
+	
+	if layoutChoice != -1:
+		freewayLayouts = [initializeExtraTollLane, initializeEmpty, makeTollRegular, initializeExtraLane]
+		freewayLayouts[layoutChoice]()
+		print("Running", simName, "...")
+		moveCarsChanged()
+		displayOutput()
+		TIME_SECONDS = 0
+		trackedCount = 0
+		list = []
