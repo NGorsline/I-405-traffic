@@ -46,6 +46,7 @@ global toll
 global simName
 global showVis
 
+
 #############################
 # Defining Constants
 #############################
@@ -83,11 +84,14 @@ percentTol = .05
 percentOnramp = .9
 onrampCount = 0
 redLightSpeed = 5
-cutoff = 10
+cutoff = 100
 totalCarCount = 0
 timec = 4.5
 toll = 1.7
 simName = "Control Simulation"
+flag1 = True
+flag2 = False
+flag3 = False
 
 # Off ramps begins  
 offramp1B = 774
@@ -535,7 +539,7 @@ def addAgent():
 			freeway[0][i][2] = car_agent.Car(0, i, False, TIME_SECONDS, speed)
 			REG_COUNT += 1
 			regAddCount += 1
-			if (TIME_SECONDS % trackedSpeed == 0 and trackedCount < 30 and hasSet == False):
+			if (TIME_SECONDS % trackedSpeed == 0 and hasSet == False):
 				freeway[0][i][2].tracked = True
 				trackedCount += 1
 				hasSet = True
@@ -543,7 +547,7 @@ def addAgent():
 			freeway[0, i, 2] = car_agent.Car(0, i, False, TIME_SECONDS, speed)
 			TOL_COUNT += 1
 			tollAddCount += 1
-			if (TIME_SECONDS % trackedSpeed == 0 and trackedCount < 30 and hasSet == False):
+			if (TIME_SECONDS % trackedSpeed == 0 and hasSet == False):
 				freeway[0][i][2].tracked = True
 				tollTrackedCount += 1
 				hasSet = True
@@ -691,6 +695,7 @@ def moveCars():
 	global trackedCount
 	global totalCarCount
 	global showVis
+	
 
 	while len(list) != cutoff:
 		removeVehicleFromExitLane()
@@ -698,7 +703,7 @@ def moveCars():
 		moveCarsHelper()
 		addAgent()
 		TIME_SECONDS += 1
-		print('\rTime steps simulated (seconds): ',TIME_SECONDS, sep=' ', end='', flush=True)
+		print("\rTracked agents recorded: ", len(list), "/", cutoff, sep=' ', end='', flush=True)
 
 		if showVis == 'y':
 			plt.axis('off')
@@ -784,7 +789,17 @@ def visualize():
 # on ramp forwards or ("B") for moving it backwards, and the amount of indexes
 # you would like to move the ramp by.
 ###############################################################################
-def moveFreewayOnRamp(onRamp,direction,indexes):
+def moveFreewayOnRamp():
+	global simName
+	global timec
+	global toll
+
+	initializeRoad()
+	simName = "Move Freeway On Ramp"
+	onRamp = ON_RAMP_ONE
+	direction = "F"
+	indexes = 500
+
 	#stores the available backwards spaces for ramp one
 	ramp1RearMovement = offramp1B - 1;
 	#stores the available spaces for ramp three to move forwards
@@ -797,6 +812,8 @@ def moveFreewayOnRamp(onRamp,direction,indexes):
 	ramp3RearMovement = ramp2FrontMovement;
 	#stores the available spaces for ramp three to move forwards
 	ramp3FrontMovement = offramp4B - onramp3E;
+	timec = 4.2
+	toll = 1.5
 	
 	# Moves the specified on-ramp forward
 	if(direction == 'f' or direction == 'F'):
@@ -886,7 +903,7 @@ def moveCarsChanged():
 		moveCarsHelper()
 		addAgentNewLayout()
 		TIME_SECONDS += 1
-		print('\rTime steps simulated (seconds): ',TIME_SECONDS, sep=' ', end='', flush=True)
+		print("\rTracked agents recorded: ", len(list), sep=' ', end='', flush=True)
 		
 		if showVis == 'y':
 			plt.axis('off')
@@ -952,13 +969,12 @@ def displayOutput():
 	print()
 	print()
 
-
-
 ####################################################
 # Runs the simulation on the default layout and then
 # clears the data
 ####################################################
-showVis = input("Would you like to see visualizations for this simulation? (y/n)")
+print("Would you like to see visualizations for this simulation? (y/n)")
+showVis = input()
 print()
 print('Running the control simulation...', sep=' ', end='', flush=True)
 print()
@@ -977,6 +993,7 @@ while layoutChoice != -1:
 	print("1 = Empty freeway")
 	print("2 = Make toll lane a regular lane")
 	print("3 = Extra regular lane")
+	print("4 = moveFreewayOnRamp")
 	print("-1 = Quit the simulation")
 	print()
 	layoutChoice = input()
@@ -984,7 +1001,7 @@ while layoutChoice != -1:
 	print()
 	
 	if layoutChoice != -1:
-		freewayLayouts = [initializeExtraTollLane, initializeEmpty, makeTollRegular, initializeExtraLane]
+		freewayLayouts = [initializeExtraTollLane, initializeEmpty, makeTollRegular, initializeExtraLane, moveFreewayOnRamp]
 		freewayLayouts[layoutChoice]()
 		print("Running", simName, "...")
 		moveCarsChanged()
